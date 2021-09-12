@@ -15,9 +15,3 @@ async def shutdown():
     pass
 
 app.include_router(project_router)
-
-
-@app.middleware("http")
-async def db_session_middleware(request: Request, call_next):
-    response = await call_next(request)
-    return response
