@@ -1,6 +1,8 @@
+import uvicorn
+
 from fastapi import FastAPI
+
 from src.presentation.controller.project import router as project_router
-from starlette.requests import Request
 
 app = FastAPI()
 
@@ -15,3 +17,6 @@ async def shutdown():
     pass
 
 app.include_router(project_router)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)

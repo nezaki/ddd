@@ -1,31 +1,9 @@
-from typing import Optional
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
-from fastapi import APIRouter
-from pydantic import BaseModel, Field
-from starlette.requests import Request
-
-
-class Project(BaseModel):
-    name: str = Field(
-        default=None,
-        title="名前",
-        description="プロジェクトの名前",
-        min_length="1",
-        max_length="128",
-        example="name example",
-        nullable=True)
-    description: Optional[str] = None
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "name": "name example",
-                "description": "description example",
-            },
-            "required": {
-                "name"
-            }
-        }
+from src.presentation.model.project import Project
+from src.infrastructure.datasource.database import get_db
+from src.infrastructure.datasource.repository.project import get_projects
 
 
 router = APIRouter(
@@ -35,5 +13,6 @@ router = APIRouter(
 
 
 @router.get("", response_model=Project)
-async def projects_findall(request: Request):
-    return {"name": "テスト"}
+async def findall(db: Session = Depends(get_db)):
+    projects = get_projects(db)
+    return projects[0]
