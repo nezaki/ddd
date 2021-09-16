@@ -1,6 +1,7 @@
 from typing import Any, Optional
 
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, Response
+from fastapi.responses import JSONResponse
 
 from src.presentation.schema.example import Example1, Example2
 
@@ -20,5 +21,13 @@ async def multiple_body_parameters(*, example1: Example1, example2: Example2) ->
 
 
 @router.get("")
-async def header(user_agent: Optional[str] = Header(None)) -> Any:
+async def header(response: Response, user_agent: Optional[str] = Header(None)) -> Any:
+    response.headers["test-header"] = "test"
     return None
+
+
+@router.get("/direct")
+async def response_directly():
+    content = {"message": "Hello World"}
+    headers = {"X-Cat-Dog": "alone in the world"}
+    return JSONResponse(content=content, headers=headers)
