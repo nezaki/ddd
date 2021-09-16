@@ -16,5 +16,11 @@ def get_db():
     try:
         db.execute(f"SET search_path TO ddd")
         yield db
+        db.commit()
+    except Exception as e:
+        if db:
+            db.rollback()
+        raise e
     finally:
-        db.close()
+        if db:
+            db.close()

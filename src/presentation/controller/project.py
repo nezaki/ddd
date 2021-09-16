@@ -1,6 +1,6 @@
-from typing import Any, List
+from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.presentation.schema.project import ProjectInDBBase, ProjectInDBBases
@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 
-@router.get("/{project_id}", response_model=ProjectInDBBase, responses={404: {}})
+@router.get("/{project_id}", response_model=ProjectInDBBase, responses={status.HTTP_404_NOT_FOUND: {}})
 def read(project_id: int, db: Session = Depends(get_db)):
     project = project_repo.get(db, id=project_id)
     return project
@@ -29,7 +29,7 @@ def read_projects(db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=ProjectInDBBase)
-def create(*, db: Session = Depends(get_db), payload: ProjectCreate) -> Any:
+async def create(*, db: Session = Depends(get_db), payload: ProjectCreate) -> Any:
     project = project_repo.create(db, obj_in=payload)
     return project
 
