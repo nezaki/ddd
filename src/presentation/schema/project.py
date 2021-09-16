@@ -31,6 +31,13 @@ class ProjectInDBBase(ProjectBase):
 
     class Config:
         orm_mode = True
+        schema_extra = {
+            "example": {
+                "name": "Foo",
+                "description": "description",
+                "id": 1,
+            }
+        }
 
 
 class ProjectInDBBases(BaseModel):

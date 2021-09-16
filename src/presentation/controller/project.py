@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 
 from src.presentation.schema.project import ProjectInDBBase, ProjectInDBBases
@@ -23,13 +23,16 @@ def read(project_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=ProjectInDBBases)
-def read_projects(db: Session = Depends(get_db)):
-    projects = project_repo.get_multi(db)
+def read_projects(
+        skip: int = Query(description="skipの説明", default=0, ge=0),
+        limit: int = Query(default=100, le=100),
+        db: Session = Depends(get_db)):
+    projects = project_repo.get_multi(db, skip=skip, limit=limit)
     return {"projects": projects}
 
 
 @router.post("", response_model=ProjectInDBBase)
-async def create(*, db: Session = Depends(get_db), payload: ProjectCreate) -> Any:
+def create(*, db: Session = Depends(get_db), payload: ProjectCreate) -> Any:
     project = project_repo.create(db, obj_in=payload)
     return project
 
