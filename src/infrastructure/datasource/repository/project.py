@@ -1,7 +1,10 @@
-from sqlalchemy.orm import Session
+from src.infrastructure.datasource.entity.project import Project as ProjectEntity
+from src.infrastructure.datasource.base import CRUDBase
+from src.presentation.schema.project import ProjectCreate, ProjectUpdate
 
-from src.infrastructure.datasource.entity.project import Project
+
+class Project(CRUDBase[ProjectEntity, ProjectCreate, ProjectUpdate]):
+    pass
 
 
-def get_projects(db: Session):
-    return db.query(Project).all()
+project = Project(ProjectEntity)

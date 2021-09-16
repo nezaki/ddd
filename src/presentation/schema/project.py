@@ -1,19 +1,16 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
 
-class Project(BaseModel):
-    id: int = Field(
-        title="id"
-    )
+class ProjectBase(BaseModel):
     name: str = Field(
         title="名前",
         description="プロジェクトの名前",
         min_length=1,
         max_length=128,
         example="name example",
-        nullable=True
+        nullable=False
     )
     description: Optional[str] = Field(
         title="desc",
@@ -21,13 +18,28 @@ class Project(BaseModel):
 
     class Config:
         schema_extra = {
-            "example": {
-                "id": 1,
-                "name": "name example",
-                "description": "description example",
-            },
             "required": {
                 "name"
             }
         }
+
+
+class ProjectInDBBase(ProjectBase):
+    id: int = Field(
+        title="id"
+    )
+
+    class Config:
         orm_mode = True
+
+
+class ProjectInDBBases(BaseModel):
+    projects: List[ProjectInDBBase]
+
+
+class ProjectCreate(ProjectBase):
+    pass
+
+
+class ProjectUpdate(ProjectBase):
+    pass
