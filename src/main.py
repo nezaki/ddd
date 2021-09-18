@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
 
 from src.presentation.controller.project import router as project_router
+from src.presentation.controller.member import router as member_router
 from src.presentation.controller.example import router as example_router
 from src.config import settings
 
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 app.include_router(project_router)
+app.include_router(member_router)
 app.include_router(example_router)
 
 
