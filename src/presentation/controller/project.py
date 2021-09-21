@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
@@ -6,8 +6,9 @@ from sqlalchemy.orm import Session
 from src.presentation.schema.project import ProjectInDBBase, ProjectInDBBases
 
 from src.infrastructure.datasource.database import get_db
-from src.infrastructure.datasource.project import project_repository
+from src.infrastructure.datasource.project import project_repository, Project
 from src.presentation.schema.project import ProjectCreate, ProjectUpdate
+from src.application.service.project import ProjectService, ProjectServiceImpl
 
 
 router = APIRouter(
@@ -22,12 +23,16 @@ def read(project_id: int, db: Session = Depends(get_db)):
     return project
 
 
+def _project_service(session: Session = Depends(get_db)) -> ProjectService:
+    return ProjectServiceImpl(session)
+
+
 @router.get("", response_model=ProjectInDBBases)
 def read_projects(
-        skip: int = Query(description="skipの説明", default=0, ge=0),
-        limit: int = Query(default=100, le=100),
-        db: Session = Depends(get_db)):
-    projects = project_repository.get_multi(db, skip=skip, limit=limit)
+        skip: Optional[int] = Query(description="skipの説明", default=0, ge=0),
+        limit: Optional[int] = Query(default=100, le=100),
+        project_service: ProjectServiceImpl = Depends(_project_service)):
+    projects = project_service.read_projects(skip, limit)
     return {"projects": projects}
 
 
