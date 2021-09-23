@@ -1,11 +1,13 @@
+from abc import ABC, abstractmethod
+from typing import List
+
 from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR
 from sqlalchemy.schema import Column
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session
 
 from src.infrastructure.datasource.database import Base
-from src.infrastructure.datasource._crud_base import CRUDBase
-from src.infrastructure.datasource.member_allocation import MemberAllocation
-from src.presentation.schema.project import ProjectCreate, ProjectUpdate
+from src.infrastructure.datasource.member_allocation import MemberAllocation  # noqa
+from src.domain.model.project import Project as ProjectModel
 
 
 class Project(Base):
@@ -17,9 +19,49 @@ class Project(Base):
 
     member_allocation = relationship("MemberAllocation", uselist=True, lazy="joined", innerjoin=False, viewonly=True)
 
+    def to_entity(self) -> ProjectModel:
+        return ProjectModel(
+            id=self.id,
+            name=self.name,
+            description=self.description
+        )
 
-class ProjectRepository(CRUDBase[Project, ProjectCreate, ProjectUpdate]):
-    pass
+    @staticmethod
+    def from_entity(project: ProjectModel) -> "Project":
+        return Project(
+            id=project.id,
+            name=project.name,
+            description=project.description
+        )
 
 
-project_repository = ProjectRepository(Project)
+class ProjectRepository(ABC):
+
+    @abstractmethod
+    def find(self, session: Session, skip: int = 0, limit: int = 100) -> List[ProjectModel]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def create(self, session: Session, project: ProjectModel) -> ProjectModel:
+        raise NotImplementedError
+
+
+class ProjectRepositoryImpl(ProjectRepository):
+
+    def __init__(self):
+        pass
+
+    def find(self, session: Session, skip: int = 0, limit: int = 100) \
+            -> List[ProjectModel]:
+        projects = session.query(Project) \
+            .order_by(Project.id) \
+            .offset(skip) \
+            .limit(limit) \
+            .all()
+        return [project.to_entity() for project in projects]
+
+    def create(self, session: Session, project: ProjectModel) -> ProjectModel:
+        project: Project = Project.from_entity(project)
+        session.add(project)
+        session.flush()
+        return project.to_entity()

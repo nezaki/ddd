@@ -3,7 +3,7 @@ import time
 import uvicorn
 from datetime import datetime
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Header, Depends
 from starlette.middleware.cors import CORSMiddleware
 
 from src.presentation.controller.project import router as project_router
@@ -15,7 +15,25 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
-app = FastAPI()
+
+async def verify_token(x_token: str = Header(...)):
+    # if x_token != "fake-super-secret-token":
+    #     raise HTTPException(status_code=400, detail="X-Token header invalid")
+    pass
+
+space = "  "
+
+app = FastAPI(
+    debug=True,
+    title="api title",
+    description=f"""
+api{space}
+description{space}
+[リンクサンプル](https://google.com){space}
+    """,
+    version="0.0.1",
+    root_path="",
+    dependencies=[Depends(verify_token)])
 app.include_router(project_router)
 app.include_router(member_router)
 app.include_router(example_router)
@@ -59,4 +77,4 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, debug=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, debug=False)

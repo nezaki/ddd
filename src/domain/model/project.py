@@ -4,6 +4,6 @@ from pydantic import BaseModel
 
 
 class Project(BaseModel):
-    id: int
+    id: Optional[int] = None
     name: str
     description: Optional[str]
