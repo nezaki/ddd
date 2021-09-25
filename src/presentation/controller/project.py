@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, Query, Header
+from fastapi import APIRouter, Depends, Query, Header, Response, status
 
 from src.presentation.schema.project import Project as ProjectSchema
 from src.presentation.schema.project import Projects as ProjectsSchema
@@ -13,11 +13,6 @@ router = APIRouter(
     tags=["Projects"],
 )
 
-
-# @router.get("/{project_id}", response_model=ProjectInDBBase, responses={status.HTTP_404_NOT_FOUND: {}})
-# def read(project_id: int, db: Session = Depends(get_db)):
-#     project = project_repository.get(db, id=project_id)
-#     return project
 
 async def verify_token(x_token2: str = Header(...)):
     # if x_token != "fake-super-secret-token":
@@ -50,14 +45,13 @@ def create(
     return project
 
 
-# @router.put("/{project_id}", response_model=ProjectInDBBase)
-# def update(*, project_id: int, db: Session = Depends(get_db), payload: ProjectUpdate) -> Any:
-#     project = project_repository.get(db, id=project_id)
-#     project_updated = project_repository.update(db, db_obj=project, obj_in=payload)
-#     return project_updated
-#
-#
-# @router.delete("/{project_id}", status_code=204)
-# def delete(*, project_id: int, db: Session = Depends(get_db)) -> Any:
-#     project_repository.remove(db, id=project_id)
-#     return None
+@router.put("/{project_id}", response_model=ProjectSchema)
+def update(project_id: int, payload: ProjectSchema, service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
+    project = service.update(ProjectModel(**payload.dict()), project_id)
+    return project
+
+
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete(project_id: int, service: ProjectService = Depends(ProjectServiceImpl)):
+    service.delete(project_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

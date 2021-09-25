@@ -64,11 +64,12 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection, target_metadata=target_metadata,
         )
+        schema = config.get_main_option("schema")
+        context.execute(f'SET search_path TO {schema}')
 
         with context.begin_transaction():
-            context.execute('SET search_path TO ddd')
             context.run_migrations()
 
 

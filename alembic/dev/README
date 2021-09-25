@@ -1,1 +1,11 @@
 Generic single-database configuration.
+
+
+% cd alembic
+
+% alembic upgrade head
+head は最新の version まで migration を実行する
+1 つだけ version を上げたい場合は、head ではなく +1 を使用する
+
+% alembic downgrade base
+一つ前の version に戻すときは、base ではなく -1 を使用する

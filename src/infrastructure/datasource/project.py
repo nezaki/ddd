@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, NoReturn
 
 from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR
 from sqlalchemy.schema import Column
@@ -45,6 +45,14 @@ class ProjectRepository(ABC):
     def create(self, session: Session, project: ProjectModel) -> ProjectModel:
         raise NotImplementedError
 
+    @abstractmethod
+    def update(self, session: Session, project: ProjectModel, project_id: int) -> ProjectModel:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete(self, session: Session, project_id: int) -> NoReturn:
+        raise NotImplementedError
+
 
 class ProjectRepositoryImpl(ProjectRepository):
 
@@ -65,3 +73,12 @@ class ProjectRepositoryImpl(ProjectRepository):
         session.add(project)
         session.flush()
         return project.to_entity()
+
+    def update(self, session: Session, project: ProjectModel, project_id: int) -> ProjectModel:
+        _project = session.query(Project).filter_by(id=project_id).one()
+        _project.name = project.name
+        _project.description = project.description
+        return _project.to_entity()
+
+    def delete(self, session: Session, project_id: int) -> NoReturn:
+        session.query(Project).filter_by(id=project_id).delete()

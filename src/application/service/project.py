@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, NoReturn
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -18,6 +18,14 @@ class ProjectService(ABC):
     def create(self, project: Project) -> Project:
         raise NotImplementedError
 
+    @abstractmethod
+    def update(self, project: Project, project_id: int) -> Project:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete(self, project_id: int) -> NoReturn:
+        raise NotImplementedError
+
 
 class ProjectServiceImpl(ProjectService):
     def __init__(
@@ -32,3 +40,9 @@ class ProjectServiceImpl(ProjectService):
 
     def create(self, project: Project) -> Project:
         return self.project_repository.create(self.session, project)
+
+    def update(self, project: Project, project_id: int) -> Project:
+        return self.project_repository.update(self.session, project, project_id)
+
+    def delete(self, project_id: int) -> NoReturn:
+        self.project_repository.delete(self.session, project_id)
