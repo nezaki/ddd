@@ -43,6 +43,16 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
+"""
+fixture scope
+
+function テストケースごとに1回実行（デフォルト）
+class テストクラス全体で1回実行
+module テストファイル全体で1回実行
+package 
+session テスト全体で1回だけ実行
+"""
+
 
 @pytest.fixture(scope="session")
 def db(request):

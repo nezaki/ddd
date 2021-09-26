@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import List, NoReturn
+from typing import List, NoReturn, Optional
 
 from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR
 from sqlalchemy.schema import Column
 from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm.exc import NoResultFound
 
 from src.infrastructure.datasource.database import Base
 from src.infrastructure.datasource.member_allocation import MemberAllocation  # noqa
@@ -42,6 +43,10 @@ class ProjectRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def find_by_id(self, session: Session, project_id: int) -> Optional[ProjectModel]:
+        raise NotImplementedError
+
+    @abstractmethod
     def create(self, session: Session, project: ProjectModel) -> ProjectModel:
         raise NotImplementedError
 
@@ -67,6 +72,14 @@ class ProjectRepositoryImpl(ProjectRepository):
             .limit(limit) \
             .all()
         return [project.to_entity() for project in projects]
+
+    def find_by_id(self, session: Session, project_id: int) -> Optional[ProjectModel]:
+        try:
+            return session.query(Project).filter_by(id=project_id).one()
+        except NoResultFound:
+            return None
+        except Exception as e:
+            raise e
 
     def create(self, session: Session, project: ProjectModel) -> ProjectModel:
         project: Project = Project.from_entity(project)

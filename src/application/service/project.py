@@ -15,6 +15,10 @@ class ProjectService(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def read(self, project_id: int) -> Optional[Project]:
+        raise NotImplementedError
+
+    @abstractmethod
     def create(self, project: Project) -> Project:
         raise NotImplementedError
 
@@ -37,6 +41,9 @@ class ProjectServiceImpl(ProjectService):
 
     def read_projects(self, skip: Optional[int], limit: Optional[int]) -> List[Project]:
         return self.project_repository.find(self.session, skip, limit)
+
+    def read(self, project_id: int) -> Optional[Project]:
+        return self.project_repository.find_by_id(self.session, project_id)
 
     def create(self, project: Project) -> Project:
         return self.project_repository.create(self.session, project)

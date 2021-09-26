@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, Query, Header, Response, status
+from fastapi import APIRouter, Depends, Query, Header, Response, status, Request
 
 from src.presentation.schema.project import Project as ProjectSchema
 from src.presentation.schema.project import Projects as ProjectsSchema
@@ -14,12 +14,6 @@ router = APIRouter(
 )
 
 
-async def verify_token(x_token2: str = Header(...)):
-    # if x_token != "fake-super-secret-token":
-    #     raise HTTPException(status_code=400, detail="X-Token header invalid")
-    pass
-
-
 class CommonQueryParams:
     def __init__(
             self,
@@ -29,12 +23,18 @@ class CommonQueryParams:
         self.limit = limit
 
 
-@router.get("", response_model=ProjectsSchema, dependencies=[Depends(verify_token)])
+@router.get("", response_model=ProjectsSchema)
 def read_projects(
         params: CommonQueryParams = Depends(CommonQueryParams),
         service: ProjectService = Depends(ProjectServiceImpl)):
     projects = service.read_projects(params.skip, params.limit)
     return {"projects": projects}
+
+
+@router.get("/{project_id}", response_model=ProjectSchema)
+def read(project_id: int, service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
+    project = service.read(project_id)
+    return project
 
 
 @router.post("", response_model=ProjectSchema)
