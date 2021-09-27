@@ -18,7 +18,7 @@ class Project(Base):
     name = Column(VARCHAR)
     description = Column(VARCHAR)
 
-    member_allocation = relationship("MemberAllocation", uselist=True, lazy="joined", innerjoin=False, viewonly=True)
+    # member_allocation = relationship("MemberAllocation", uselist=True, lazy="joined", innerjoin=False, viewonly=True)
 
     def to_entity(self) -> ProjectModel:
         return ProjectModel(

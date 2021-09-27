@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 
 from src.infrastructure.datasource.database import get_db
-from src.infrastructure.datasource.member import member_repository
 from src.presentation.schema.member import MemberInDBBase, MemberCreate, MemberUpdate
 
 
@@ -29,10 +28,10 @@ router = APIRouter(
 #     return {"projects": projects}
 
 
-@router.post("", response_model=MemberInDBBase)
-def create(*, db: Session = Depends(get_db), payload: MemberCreate) -> Any:
-    member = member_repository.create(db, obj_in=payload)
-    return member
+# @router.post("", response_model=MemberInDBBase)
+# def create(*, db: Session = Depends(get_db), payload: MemberCreate) -> Any:
+#     member = member_repository.create(db, obj_in=payload)
+#     return member
 
 
 # @router.put("/{project_id}", response_model=ProjectInDBBase)
