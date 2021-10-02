@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 
-def test_create(db, client: TestClient) -> None:
+def test(db, client: TestClient) -> None:
     data = {
         "name": "test_name",
         "description": "test_description",
@@ -9,8 +9,7 @@ def test_create(db, client: TestClient) -> None:
     response = client.post("/projects", json=data)
     assert response.status_code == 200
 
-
-def test_reads_project(db, client: TestClient) -> None:
+    # reads project
     response = client.get("/projects?skip=0&limit=100")
     assert response.status_code == 200
     response_projects = response.json().get("projects")
@@ -19,8 +18,20 @@ def test_reads_project(db, client: TestClient) -> None:
     assert response_projects[0].get("name") == "test_name"
     assert response_projects[0].get("description") == "test_description"
 
+    # create
+    data = {
+        "name": "test_name2",
+        "description": "test_description2",
+    }
+    response = client.post("/projects", json=data)
+    assert response.status_code == 200
 
-def test_update(db, client: TestClient) -> None:
+    # reads project
+    response = client.get("/projects?skip=0&limit=100")
+    assert response.status_code == 200
+    response_projects = response.json().get("projects")
+    assert len(response_projects) == 2
+
     # update
     data = {
         "name": "test_name_updated",
@@ -37,8 +48,6 @@ def test_update(db, client: TestClient) -> None:
     assert response_project.get("name") == "test_name_updated"
     assert response_project.get("description") == "test_description_updated"
 
-
-def test_delete(db, client: TestClient) -> None:
     # delete
     response = client.delete("/projects/1")
     assert response.status_code == 204
@@ -47,4 +56,4 @@ def test_delete(db, client: TestClient) -> None:
     response = client.get("/projects?skip=0&limit=100")
     assert response.status_code == 200
     response_projects = response.json().get("projects")
-    assert len(response_projects) == 0
+    assert len(response_projects) == 1
