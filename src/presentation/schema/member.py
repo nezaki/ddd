@@ -1,9 +1,15 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
+from src.domain.model.member import Member as MemberModel
 
-class MemberBase(BaseModel):
+
+class Member(BaseModel):
+    id: Optional[int] = Field(
+        title="id",
+        readOnly=True,
+    )
     name: str = Field(
         title="名前",
         description="メンバーの名前",
@@ -24,26 +30,23 @@ class MemberBase(BaseModel):
         nullable=False,
     )
 
-
-class MemberInDBBase(MemberBase):
-    id: int = Field(
-        title="id"
-    )
-
     class Config:
         orm_mode = True
         schema_extra = {
-            "required": ["name", "cost", "cost_type"]
+            "required": {
+                "name", "cost", "cost_type"
+            }
         }
 
+    @staticmethod
+    def from_entity(member: MemberModel) -> "Member":
+        return Member(
+            id=member.id,
+            name=member.name,
+            cost=member.cost,
+            cost_type=member.cost_type.value,
+        )
 
-class MemberInDBBases(BaseModel):
-    members: List[MemberInDBBase]
 
-
-class MemberCreate(MemberBase):
-    pass
-
-
-class MemberUpdate(MemberBase):
-    pass
+class Members(BaseModel):
+    members: List[Member]

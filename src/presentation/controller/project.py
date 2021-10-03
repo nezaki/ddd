@@ -1,26 +1,18 @@
-from typing import Any, Optional
+from typing import Any
 
-from fastapi import APIRouter, Depends, Query, Header, Response, status, Request
+from fastapi import APIRouter, Depends, Response, status
 
 from src.presentation.schema.project import Project as ProjectSchema
 from src.presentation.schema.project import Projects as ProjectsSchema
 from src.application.service.project import ProjectService, ProjectServiceImpl
 from src.domain.model.project import Project as ProjectModel
+from src.presentation.controller._common_query_param import CommonQueryParams
 
 
 router = APIRouter(
     prefix="/projects",
     tags=["Projects"],
 )
-
-
-class CommonQueryParams:
-    def __init__(
-            self,
-            skip: Optional[int] = Query(description="skipの説明", default=0, ge=0, le=9999999),
-            limit: Optional[int] = Query(description="limitの説明", default=100, ge=1, le=1000)):
-        self.skip = skip
-        self.limit = limit
 
 
 @router.get("", response_model=ProjectsSchema)
