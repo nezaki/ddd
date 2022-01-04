@@ -1,5 +1,9 @@
 # FastAPI
 
+- [ローカル環境構築](#ローカル環境構築)
+- [テストの実行](#テストの実行)
+- [新しいリビジョンのマイグレーションスクリプト作成](#新しいリビジョンのマイグレーションスクリプト作成)
+
 ## ローカル環境構築
 
 ### PostgreSQLの起動とpgAdminでの接続
@@ -53,7 +57,13 @@ d23e0779bd47   postgres:14.1        "docker-entrypoint.s…"   13 minutes ago   
 src/main.py を実行後  
 http://127.0.0.1:8000/docs にアクセス
 
-### テストの実行
+## テストの実行
 ```
 % pytest --verbose
+```
+
+## 新しいリビジョンのマイグレーションスクリプト作成
+```
+% cd alembic
+% alembic revision -m "{message}"
 ```
