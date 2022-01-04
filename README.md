@@ -1,6 +1,7 @@
 # FastAPI
 
-## 初期構築
+## ローカル環境構築
+
 ### PostgreSQLの起動とpgAdminでの接続
 ```
 % docker compose up -d
@@ -39,4 +40,20 @@ d23e0779bd47   postgres:14.1        "docker-entrypoint.s…"   13 minutes ago   
 管理用データベース: fastapi
 ユーザ名: root
 パスワード: root
+```
+
+### DBマイグレーションの実行
+```
+(fastapiスキーマを作成しておく)
+% cd alembic
+% alembic upgrade head
+```
+
+### APIの起動
+src/main.py を実行後  
+http://127.0.0.1:8000/docs にアクセス
+
+### テストの実行
+```
+% pytest --verbose
 ```
