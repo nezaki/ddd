@@ -51,6 +51,11 @@ d23e0779bd47   postgres:14.1        "docker-entrypoint.s…"   13 minutes ago   
 % alembic upgrade head
 ```
 
+※ダウングレードを行いたい場合(以下は全てのマイグレーションをダウングレード)
+```
+% alembic downgrade base
+```
+
 ### Gitのコミット時のチェック設定
 ```
 % pre-commit install

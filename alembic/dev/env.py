@@ -66,7 +66,10 @@ def run_migrations_online():  # noqa
             connection=connection, target_metadata=target_metadata,
         )
         schema = config.get_main_option("schema")
+        context.execute(f"CREATE SCHEMA IF NOT EXISTS {schema} AUTHORIZATION root;")
         context.execute(f"SET search_path TO {schema}")
+
+        context.execute("CREATE SCHEMA IF NOT EXISTS test AUTHORIZATION root;")
 
         with context.begin_transaction():
             context.run_migrations()
