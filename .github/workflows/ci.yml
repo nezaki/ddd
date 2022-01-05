@@ -44,7 +44,7 @@ jobs:
       - name: DB Migrate
         run: |
           cd alembic/
-          alembic upgrade head
+          pipenv run db-migrate
 
       - name: Run Lint
         run: |
