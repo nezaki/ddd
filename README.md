@@ -70,6 +70,11 @@ http://127.0.0.1:8000/docs にアクセス
 % pipenv run code-format
 ```
 
+## スタイルチェック
+```
+% pipenv run lint
+```
+
 ## テストの実行
 ```
 % pipenv run test
