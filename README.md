@@ -1,5 +1,7 @@
 # FastAPI
 
+[![ci](https://github.com/nezaki/fastapi/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nezaki/fastapi/actions/workflows/ci.yml)
+
 ## ローカル環境構築
 
 ### PostgreSQLの起動とpgAdminでの接続
