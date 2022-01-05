@@ -1,24 +1,22 @@
 import logging
 import time
-import uvicorn
 from datetime import datetime
 
-from fastapi import FastAPI, Request, Header, Depends
+import uvicorn
 from starlette.middleware.cors import CORSMiddleware
 
-from src.presentation.controller.project import router as project_router
-from src.presentation.controller.member import router as member_router
-from src.presentation.controller.example import router as example_router
+from fastapi import Depends, FastAPI, Header, Request
 from src.config import settings
+from src.presentation.controller.example import router as example_router
+from src.presentation.controller.member import router as member_router
+from src.presentation.controller.project import router as project_router
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
 
 
-async def verify_token(x_token: str = Header(...)):
-    # if x_token != "fake-super-secret-token":
-    #     raise HTTPException(status_code=400, detail="X-Token header invalid")
+async def verify_token(x_token: str = Header(...)):  # noqa
     pass
 
 space = "  "
@@ -40,17 +38,17 @@ app.include_router(example_router)
 
 
 @app.on_event("startup")
-async def startup():
+async def startup():  # noqa
     logger.debug("startup")
 
 
 @app.on_event("shutdown")
-async def shutdown():
+async def shutdown():  # noqa
     logger.debug("shutdown")
 
 
 @app.middleware("http")
-async def process_time(request: Request, call_next):
+async def process_time(request: Request, call_next):  # noqa
     path = request.url.path
     method = request.method
     start = time.perf_counter()

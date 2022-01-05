@@ -1,13 +1,9 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-
-from src.infrastructure.datasource.database import get_db
 from src.application.service.member import MemberService, MemberServiceImpl
-from src.presentation.schema.member import Member as MemberSchema
 from src.domain.model.member import Member as MemberModel
-
+from src.presentation.schema.member import Member as MemberSchema
 
 router = APIRouter(
     prefix="/members",

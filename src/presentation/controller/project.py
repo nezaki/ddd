@@ -1,13 +1,11 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, Response, status
-
-from src.presentation.schema.project import Project as ProjectSchema
-from src.presentation.schema.project import Projects as ProjectsSchema
 from src.application.service.project import ProjectService, ProjectServiceImpl
 from src.domain.model.project import Project as ProjectModel
 from src.presentation.controller._common_query_param import CommonQueryParams
-
+from src.presentation.schema.project import Project as ProjectSchema
+from src.presentation.schema.project import Projects as ProjectsSchema
 
 router = APIRouter(
     prefix="/projects",
@@ -18,7 +16,7 @@ router = APIRouter(
 @router.get("", response_model=ProjectsSchema)
 def read_projects(
         params: CommonQueryParams = Depends(CommonQueryParams),
-        service: ProjectService = Depends(ProjectServiceImpl)):
+        service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
     projects = service.read_projects(params.skip, params.limit)
     return {"projects": projects}
 
@@ -44,6 +42,6 @@ def update(project_id: int, payload: ProjectSchema, service: ProjectService = De
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete(project_id: int, service: ProjectService = Depends(ProjectServiceImpl)):
+def delete(project_id: int, service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
     service.delete(project_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

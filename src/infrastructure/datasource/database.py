@@ -10,10 +10,10 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
-def get_db():
+def get_db():  # noqa
     db = SessionLocal()
     try:
-        db.execute(f"SET search_path TO ddd")
+        db.execute("SET search_path TO fastapi")
         yield db
         db.commit()
     except Exception as e:

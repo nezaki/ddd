@@ -2,9 +2,7 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Header, Response
 from fastapi.responses import JSONResponse
-
 from src.presentation.schema.example import Example1, Example2
-
 
 router = APIRouter(
     prefix="/example",
@@ -27,7 +25,7 @@ async def header(response: Response, user_agent: Optional[str] = Header(None)) -
 
 
 @router.get("/direct")
-async def response_directly():
+async def response_directly() -> Any:
     content = {"message": "Hello World"}
     headers = {"X-Cat-Dog": "alone in the world"}
     return JSONResponse(content=content, headers=headers)

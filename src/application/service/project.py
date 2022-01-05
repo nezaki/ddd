@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, NoReturn
+from typing import List, NoReturn, Optional
 
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
+from fastapi import Depends
 from src.domain.model.project import Project
 from src.infrastructure.datasource.database import get_db
 from src.infrastructure.datasource.project import ProjectRepository, ProjectRepositoryImpl

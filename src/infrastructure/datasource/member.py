@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
 from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR
+from sqlalchemy.orm import Session
 from sqlalchemy.schema import Column
-from sqlalchemy.orm import relationship, Session
 
-from src.infrastructure.datasource.database import Base
 from src.domain.model.member import Member as MemberModel
+from src.infrastructure.datasource.database import Base
 
 
 class Member(Base):

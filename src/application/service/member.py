@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
+from fastapi import Depends
 from src.domain.model.member import Member
 from src.infrastructure.datasource.database import get_db
 from src.infrastructure.datasource.member import MemberRepository, MemberRepositoryImpl

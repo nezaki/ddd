@@ -53,14 +53,19 @@ d23e0779bd47   postgres:14.1        "docker-entrypoint.s…"   13 minutes ago   
 % alembic upgrade head
 ```
 
+### Gitのコミット時のチェック設定
+```
+% pre-commit install
+```
+
+※ pre-commitのチェックを実行する場合
+```
+% pre-commit run --all-files
+```
+
 ### APIの起動
 src/main.py を実行後  
 http://127.0.0.1:8000/docs にアクセス
-
-## テストの実行
-```
-% pytest --verbose
-```
 
 ## 新しいリビジョンのマイグレーションスクリプト作成
 ```

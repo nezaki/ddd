@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 from typing import List, NoReturn, Optional
 
 from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR
-from sqlalchemy.schema import Column
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.schema import Column
 
+from src.domain.model.project import Project as ProjectModel
 from src.infrastructure.datasource.database import Base
 from src.infrastructure.datasource.member_allocation import MemberAllocation  # noqa
-from src.domain.model.project import Project as ProjectModel
 
 
 class Project(Base):

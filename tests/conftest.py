@@ -1,19 +1,17 @@
-from typing import Generator
+from typing import Any, Generator
 
-import alembic
 import pytest
-from alembic.command import upgrade as alembic_upgrade
 from alembic.config import Config
-from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from src.main import app
-from src.main import verify_token
+import alembic
+from fastapi.testclient import TestClient
 from src.infrastructure.datasource.database import get_db
+from src.main import app, verify_token
 
 
-async def override_verify_token():
+async def override_verify_token() -> Any:
     pass
 
 app.dependency_overrides[verify_token] = override_verify_token
@@ -25,7 +23,7 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-def override_get_db():
+def override_get_db():  # noqa
     db = TestingSessionLocal()
     try:
         schema = config.get_main_option("schema")
@@ -49,13 +47,13 @@ fixture scope
 function テストケースごとに1回実行（デフォルト）
 class テストクラス全体で1回実行
 module テストファイル全体で1回実行
-package 
+package
 session テスト全体で1回だけ実行
 """
 
 
 @pytest.fixture(scope="session")
-def db(request):
+def db(request):  # noqa
     alembic.command.upgrade(config, "head")
     yield
     alembic.command.downgrade(config, "base")

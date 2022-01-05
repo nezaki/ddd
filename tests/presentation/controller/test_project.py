@@ -1,7 +1,9 @@
+from sqlalchemy.orm import Session
+
 from fastapi.testclient import TestClient
 
 
-def test(db, client: TestClient) -> None:
+def test(db: Session, client: TestClient) -> None:
     data = {
         "name": "test_name",
         "description": "test_description",
