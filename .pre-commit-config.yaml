@@ -3,7 +3,7 @@ repos:
     rev: 4.0.1
     hooks:
     - id: flake8
-      exclude: ^.git/|^tests/|^alembic/
+      exclude: ^.git/|^tests/
       args:
         - "--config"
         - "setup.cfg"

@@ -1,7 +1,6 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
@@ -25,7 +24,7 @@ target_metadata = None
 # ... etc.
 
 
-def run_migrations_offline():
+def run_migrations_offline():  # noqa
     """Run migrations in 'offline' mode.
 
     This configures the context with just a URL
@@ -49,7 +48,7 @@ def run_migrations_offline():
         context.run_migrations()
 
 
-def run_migrations_online():
+def run_migrations_online():  # noqa
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
@@ -67,7 +66,7 @@ def run_migrations_online():
             connection=connection, target_metadata=target_metadata,
         )
         schema = config.get_main_option("schema")
-        context.execute(f'SET search_path TO {schema}')
+        context.execute(f"SET search_path TO {schema}")
 
         with context.begin_transaction():
             context.run_migrations()
