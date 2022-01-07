@@ -17,7 +17,7 @@ async def override_verify_token() -> Any:
 app.dependency_overrides[verify_token] = override_verify_token
 
 
-config = Config("./tests/test_alembic.ini")
+config = Config("./tests/alembic-test.ini")
 SQLALCHEMY_DATABASE_URL = config.get_main_option("sqlalchemy.url")
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

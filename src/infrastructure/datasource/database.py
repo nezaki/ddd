@@ -1,10 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from src.config import settings
 
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://user:password@localhost:15432/postgres"
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_size=20, max_overflow=40, echo=False)
+engine = create_engine(settings.DATABASE_URL, pool_size=20, max_overflow=40, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
@@ -13,7 +12,7 @@ Base = declarative_base()
 def get_db():  # noqa
     db = SessionLocal()
     try:
-        db.execute("SET search_path TO fastapi")
+        db.execute(f"SET search_path TO {settings.DATABASE_SCHEMA}")
         yield db
         db.commit()
     except Exception as e:

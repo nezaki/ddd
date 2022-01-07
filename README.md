@@ -39,14 +39,13 @@ d23e0779bd47   postgres:14.1        "docker-entrypoint.s…"   13 minutes ago   
 上記のIPAddressに接続するようにpgAdminで設定する。この場合は以下のような設定になる。
 ホスト名/アドレス: 192.168.112.2
 ポート番号: 5432
-管理用データベース: fastapi
+管理用データベース: postgres
 ユーザ名: root
 パスワード: root
 ```
 
 ### DBマイグレーションの実行
 ```
-(fastapiスキーマを作成しておく)
 % cd alembic
 % alembic upgrade head
 ```
