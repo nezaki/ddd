@@ -54,6 +54,7 @@ session テスト全体で1回だけ実行
 
 @pytest.fixture(scope="session")
 def db(request):  # noqa
+    alembic.command.downgrade(config, "base")
     alembic.command.upgrade(config, "head")
     yield
     alembic.command.downgrade(config, "base")
