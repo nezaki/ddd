@@ -2,7 +2,7 @@ import logging
 from time import sleep
 from typing import Any, NoReturn, Optional
 
-from fastapi import APIRouter, BackgroundTasks, Header, Response
+from fastapi import APIRouter, BackgroundTasks, Header, Response, Request
 from fastapi.responses import JSONResponse
 from src.presentation.schema.example import Example1, Example2
 
@@ -29,14 +29,22 @@ async def header(response: Response, user_agent: Optional[str] = Header(None)) -
     return None
 
 
-@router.get("/direct")
+@router.get("/response-direct")
 async def response_directly() -> Any:
     content = {"message": "Hello World"}
     headers = {"X-Cat-Dog": "alone in the world"}
     return JSONResponse(content=content, headers=headers)
 
 
-def _task() -> NoReturn:
+@router.get("/request-direct")
+async def request_directly(request: Request) -> Any:
+    return JSONResponse(content={
+        "url": request.url.path,
+        "method": request.method,
+    })
+
+
+async def _task() -> NoReturn:
     for i in range(10):
         sleep(1)
         logger.debug(f"{i}")

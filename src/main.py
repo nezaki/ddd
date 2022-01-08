@@ -23,18 +23,21 @@ async def verify_token(x_token: str = Header(...)):  # noqa
     pass
 
 space = "  "
+description = f"""
+api{space}
+description{space}
+[リンクサンプル](https://google.com){space}
+"""
 
 app = FastAPI(
     debug=True,
     title="api title",
-    description=f"""
-api{space}
-description{space}
-[リンクサンプル](https://google.com){space}
-    """,
+    description=description,
     version="0.0.1",
     root_path="",
-    dependencies=[Depends(verify_token)])
+    dependencies=[Depends(verify_token)],
+    docs_url="/docs",
+    redoc_url="/redoc",)
 app.include_router(project_router)
 app.include_router(member_router)
 app.include_router(example_router)
