@@ -75,7 +75,7 @@ class ProjectRepositoryImpl(ProjectRepository):
 
     def find_by_id(self, session: Session, project_id: int) -> Optional[ProjectModel]:
         try:
-            return session.query(Project).filter_by(id=project_id).one()
+            return session.query(Project).filter_by(id=project_id).one().to_entity()
         except NoResultFound:
             return None
         except Exception as e:

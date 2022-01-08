@@ -11,7 +11,7 @@ def test(db: Session, client: TestClient) -> None:
     response = client.post("/projects", json=data)
     assert response.status_code == 200
 
-    # reads project
+    # get project
     response = client.get("/projects?skip=0&limit=100")
     assert response.status_code == 200
     response_projects = response.json().get("projects")
@@ -20,7 +20,7 @@ def test(db: Session, client: TestClient) -> None:
     assert response_projects[0].get("name") == "test_name"
     assert response_projects[0].get("description") == "test_description"
 
-    # create
+    # post
     data = {
         "name": "test_name2",
         "description": "test_description2",
@@ -28,13 +28,13 @@ def test(db: Session, client: TestClient) -> None:
     response = client.post("/projects", json=data)
     assert response.status_code == 200
 
-    # reads project
+    # get projects
     response = client.get("/projects?skip=0&limit=100")
     assert response.status_code == 200
     response_projects = response.json().get("projects")
     assert len(response_projects) == 2
 
-    # update
+    # put
     data = {
         "name": "test_name_updated",
         "description": "test_description_updated",
@@ -42,7 +42,7 @@ def test(db: Session, client: TestClient) -> None:
     response = client.put("/projects/1", json=data)
     assert response.status_code == 200
 
-    # read
+    # get project
     response = client.get("/projects/1")
     assert response.status_code == 200
     response_project = response.json()
@@ -50,11 +50,26 @@ def test(db: Session, client: TestClient) -> None:
     assert response_project.get("name") == "test_name_updated"
     assert response_project.get("description") == "test_description_updated"
 
+    # patch
+    data = {
+        "description": "test_description_updated2",
+    }
+    response = client.patch("/projects/1", json=data)
+    assert response.status_code == 200
+
+    # get project
+    response = client.get("/projects/1")
+    assert response.status_code == 200
+    response_project = response.json()
+    assert response_project.get("id") == 1
+    assert response_project.get("name") == "test_name_updated"
+    assert response_project.get("description") == "test_description_updated2"
+
     # delete
     response = client.delete("/projects/1")
     assert response.status_code == 204
 
-    # reads_project
+    # get project
     response = client.get("/projects?skip=0&limit=100")
     assert response.status_code == 200
     response_projects = response.json().get("projects")

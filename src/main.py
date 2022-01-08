@@ -3,9 +3,12 @@ import time
 from datetime import datetime
 
 import uvicorn
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 from fastapi import Depends, FastAPI, Header, Request
+from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
 from src.config import settings
 from src.presentation.controller.example import router as example_router
 from src.presentation.controller.member import router as member_router
@@ -63,6 +66,18 @@ async def process_time(request: Request, call_next):  # noqa
     logger.debug(f"{end_datetime} {method} {path}: {end - start}")
 
     return response
+
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request, exc):  # noqa
+    logger.debug("StarletteHTTPException")
+    return await http_exception_handler(request, exc)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):  # noqa
+    logger.debug("RequestValidationError")
+    return await request_validation_exception_handler(request, exc)
 
 
 if settings.BACKEND_CORS_ORIGINS:

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, NoReturn, Optional
+from typing import Dict, List, NoReturn, Optional
 
 from sqlalchemy.orm import Session
 
@@ -23,7 +23,11 @@ class ProjectService(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update(self, project: Project, project_id: int) -> Project:
+    def replace(self, project: Project, project_id: int) -> Project:
+        raise NotImplementedError
+
+    @abstractmethod
+    def update(self, project: Dict, project_id: int) -> Project:
         raise NotImplementedError
 
     @abstractmethod
@@ -48,8 +52,12 @@ class ProjectServiceImpl(ProjectService):
     def create(self, project: Project) -> Project:
         return self.project_repository.create(self.session, project)
 
-    def update(self, project: Project, project_id: int) -> Project:
+    def replace(self, project: Project, project_id: int) -> Project:
         return self.project_repository.update(self.session, project, project_id)
+
+    def update(self, project: Dict, project_id: int) -> Project:
+        stored_project = self.project_repository.find_by_id(self.session, project_id)
+        return self.project_repository.update(self.session, stored_project.copy(update=project), project_id)
 
     def delete(self, project_id: int) -> NoReturn:
         self.project_repository.delete(self.session, project_id)

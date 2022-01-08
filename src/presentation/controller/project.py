@@ -5,6 +5,7 @@ from src.application.service.project import ProjectService, ProjectServiceImpl
 from src.domain.model.project import Project as ProjectModel
 from src.presentation.controller._common_query_param import CommonQueryParams
 from src.presentation.schema.project import Project as ProjectSchema
+from src.presentation.schema.project import ProjectPatch as ProjectPatchSchema
 from src.presentation.schema.project import Projects as ProjectsSchema
 
 router = APIRouter(
@@ -14,7 +15,7 @@ router = APIRouter(
 
 
 @router.get("", response_model=ProjectsSchema)
-def read_projects(
+def get_projects(
         params: CommonQueryParams = Depends(CommonQueryParams),
         service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
     projects = service.read_projects(params.skip, params.limit)
@@ -22,13 +23,13 @@ def read_projects(
 
 
 @router.get("/{project_id}", response_model=ProjectSchema)
-def read(project_id: int, service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
+def get_project(project_id: int, service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
     project = service.read(project_id)
     return project
 
 
 @router.post("", response_model=ProjectSchema)
-def create(
+def post(
         payload: ProjectSchema,
         service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
     project = service.create(ProjectModel(**payload.dict()))
@@ -36,8 +37,14 @@ def create(
 
 
 @router.put("/{project_id}", response_model=ProjectSchema)
-def update(project_id: int, payload: ProjectSchema, service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
-    project = service.update(ProjectModel(**payload.dict()), project_id)
+def put(project_id: int, payload: ProjectSchema, service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
+    project = service.replace(ProjectModel(**payload.dict()), project_id)
+    return project
+
+
+@router.patch("/{project_id}", response_model=ProjectPatchSchema)
+def patch(project_id: int, payload: ProjectPatchSchema, service: ProjectService = Depends(ProjectServiceImpl)) -> Any:
+    project = service.update(payload.dict(exclude_unset=True), project_id)
     return project
 
 
