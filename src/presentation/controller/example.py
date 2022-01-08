@@ -2,7 +2,7 @@ import logging
 from time import sleep
 from typing import Any, NoReturn, Optional
 
-from fastapi import APIRouter, BackgroundTasks, Header, Response, Request
+from fastapi import APIRouter, BackgroundTasks, Header, Request, Response
 from fastapi.responses import JSONResponse
 from src.presentation.schema.example import Example1, Example2
 
