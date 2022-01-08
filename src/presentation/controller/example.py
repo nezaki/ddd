@@ -1,8 +1,13 @@
-from typing import Any, Optional
+import logging
+from time import sleep
+from typing import Any, NoReturn, Optional
 
-from fastapi import APIRouter, Header, Response
+from fastapi import APIRouter, BackgroundTasks, Header, Response
 from fastapi.responses import JSONResponse
 from src.presentation.schema.example import Example1, Example2
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/example",
@@ -29,3 +34,16 @@ async def response_directly() -> Any:
     content = {"message": "Hello World"}
     headers = {"X-Cat-Dog": "alone in the world"}
     return JSONResponse(content=content, headers=headers)
+
+
+def _task() -> NoReturn:
+    for i in range(10):
+        sleep(1)
+        logger.debug(f"{i}")
+    logger.debug("background task finish")
+
+
+@router.get("/background-tasks")
+async def background_tasks(background_tasks: BackgroundTasks) -> Any:
+    background_tasks.add_task(_task)
+    return None

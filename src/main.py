@@ -16,7 +16,7 @@ from src.presentation.controller.project import router as project_router
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
+logging.getLogger("sqlalchemy.engine").setLevel(level=logging.DEBUG)
 
 
 async def verify_token(x_token: str = Header(...)):  # noqa
@@ -63,7 +63,7 @@ async def process_time(request: Request, call_next):  # noqa
 
     end = time.perf_counter()
     end_datetime = datetime.now().isoformat()
-    logger.debug(f"{end_datetime} {method} {path}: {end - start}")
+    logger.debug(f"{end_datetime} {method} {path}: end {end - start} sec")
 
     return response
 
@@ -90,4 +90,5 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, debug=False)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level=logging.DEBUG, debug=False,
+                timeout_keep_alive=30)
