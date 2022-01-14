@@ -1,0 +1,225 @@
+# AWS_ACCOUNT_ID=
+# AWS_REGION=ap-northeast-1
+# REPOSITORY_NAME=
+#
+# # Dockerイメージの作成
+# docker build -t fastapi-image ./ --no-cache=true
+#
+# # ECRにログイン
+# aws ecr get-login-password | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+#
+# # docker imageのタグ付け
+# docker tag fastapi-image ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPOSITORY_NAME}:0.0.2
+#
+# # Docker ImageをECRにpush
+# docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPOSITORY_NAME}:0.0.2
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create AWS CloudFormation
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+
+  SystemName:
+    Description: Name of this system.
+    Type: String
+
+Resources:
+
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvironmentName}-${SystemName}-ecs-task-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${EnvironmentName}-${SystemName}-ecs-task-role-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ssmmessages:CreateControlChannel"
+                  - "ssmmessages:CreateDataChannel"
+                  - "ssmmessages:OpenControlChannel"
+                  - "ssmmessages:OpenDataChannel"
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - "logs:DescribeLogGroups"
+                Resource: "*"
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogStream"
+                  - "logs:DescribeLogStreams"
+                  - "logs:PutLogEvents"
+                Resource:
+                  Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-log-group-arn
+              - Effect: Allow
+                Action:
+                  - "s3:PutObject"
+                Resource:
+                  - Fn::Join:
+                      - ""
+                      - - Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-s3-bucket-arn
+                        - /*
+              - Effect: Allow
+                Action:
+                  - "s3:GetEncryptionConfiguration"
+                Resource:
+                  - Fn::Join:
+                      - ""
+                      - - Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-s3-bucket-arn
+                        - /*
+              - Effect: Allow
+                Action:
+                  - "kms:Decrypt"
+                Resource:
+                  Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-kms-key-arn
+
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvironmentName}-${SystemName}-ecs-task-execution-role
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      RepositoryName: !Sub ${EnvironmentName}-${SystemName}-repository
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub ${EnvironmentName}-${SystemName}-cluster
+      Configuration:
+        ExecuteCommandConfiguration:
+          KmsKeyId:
+            Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-kms-key-id
+          LogConfiguration:
+            CloudWatchLogGroupName:
+              Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-log-group-name
+            S3BucketName:
+              Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-s3-bucket-name
+            S3KeyPrefix: exec-output
+          Logging: OVERRIDE
+
+  ECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${EnvironmentName}-${SystemName}-family
+      NetworkMode: awsvpc
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskRole.Arn
+      Cpu: 256
+      Memory: 512
+      RequiresCompatibilities:
+        - FARGATE
+      ContainerDefinitions:
+        - Name: !Sub ${EnvironmentName}-${SystemName}-ecs-task
+          Image: !GetAtt ECRRepository.RepositoryUri
+          PortMappings:
+            - ContainerPort: 80
+          LinuxParameters:
+            initProcessEnabled: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub /aws/ecs/${EnvironmentName}-${SystemName}
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: container-stdout
+
+  ECSService:
+    Type: AWS::ECS::Service
+    DependsOn: ECSTaskDefinition
+    Properties:
+      ServiceName: !Sub ${EnvironmentName}-${SystemName}-ecs-service
+      Cluster: !GetAtt ECSCluster.Arn
+      TaskDefinition: !Sub ${EnvironmentName}-${SystemName}-family
+      EnableExecuteCommand: true
+      LaunchType: FARGATE
+      PlatformVersion: LATEST
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          SecurityGroups:
+            - Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-sg-api
+          Subnets:
+            - Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-SubnetPublic0101
+            - Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-SubnetPublic0201
+      LoadBalancers:
+        - ContainerName: !Sub ${EnvironmentName}-${SystemName}-ecs-task
+          ContainerPort: 80
+          TargetGroupArn:
+            Fn::ImportValue: !Sub ${EnvironmentName}-${SystemName}-targetgroup01-arn
+      DeploymentController:
+        Type: CODE_DEPLOY  # CODE_DEPLOY | ECS | EXTERNAL
+      DesiredCount: 0
+      Tags:
+        - Key: environment
+          Value: production
+
+  CodeDeployApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: !Sub ${EnvironmentName}-${SystemName}-deploy-app
+      ComputePlatform: ECS
+
+#  CodeDeployGroup:
+#    Type: AWS::CodeDeploy::DeploymentGroup
+#    Properties:
+#      DeploymentGroupName: ${EnvironmentName}-${SystemName}-deploy-group
+#
+#
+#      AlarmConfiguration:
+#        AlarmConfiguration
+#      ApplicationName: String
+#      AutoRollbackConfiguration:
+#        AutoRollbackConfiguration
+#      AutoScalingGroups:
+#        - String
+#      BlueGreenDeploymentConfiguration:
+#        BlueGreenDeploymentConfiguration
+#      Deployment:
+#        Deployment
+#      DeploymentConfigName: String
+#
+#      DeploymentStyle:
+#        DeploymentStyle
+#      Ec2TagFilters:
+#        - EC2TagFilter
+#      Ec2TagSet:
+#        EC2TagSet
+#      ECSServices:
+#        - ECSService
+#      LoadBalancerInfo:
+#        LoadBalancerInfo
+#      OnPremisesInstanceTagFilters:
+#        - TagFilter
+#      OnPremisesTagSet:
+#        OnPremisesTagSet
+#      ServiceRoleArn: String
+#      TriggerConfigurations:
+#        - TriggerConfig
+
+

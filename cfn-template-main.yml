@@ -115,11 +115,31 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
 
-  TargetGroup:
+  TargetGroup01:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPC
       Name: !Sub ${EnvironmentName}-${SystemName}-targetgroup01
+      Protocol: HTTP
+      ProtocolVersion: HTTP1
+      Port: 80
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /
+      HealthCheckPort: traffic-port
+      HealthyThresholdCount: 5
+      UnhealthyThresholdCount: 2
+      HealthCheckTimeoutSeconds: 5
+      HealthCheckIntervalSeconds: 30
+      Matcher:
+        HttpCode: 200
+      IpAddressType: ipv4
+      TargetType: ip
+
+  TargetGroup02:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPC
+      Name: !Sub ${EnvironmentName}-${SystemName}-targetgroup02
       Protocol: HTTP
       ProtocolVersion: HTTP1
       Port: 80
@@ -159,7 +179,12 @@ Resources:
       Port: 80
       Protocol: HTTP
       DefaultActions:
-        - TargetGroupArn: !Ref TargetGroup
+        - ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn: !Ref TargetGroup01
+                Weight: 1
+              - TargetGroupArn: !Ref TargetGroup02
+                Weight: 1
           Type: forward
       LoadBalancerArn: !Ref ALB
 
@@ -205,83 +230,6 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
 
-  ECSTaskExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${EnvironmentName}-${SystemName}-ecs-task-execution-role
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ecs-tasks.amazonaws.com
-            Action:
-              - sts:AssumeRole
-
-  ECSTaskRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${EnvironmentName}-${SystemName}-ecs-task-role
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ecs-tasks.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Policies:
-        - PolicyName: !Sub ${EnvironmentName}-${SystemName}-ecs-task-role-policy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "ssmmessages:CreateControlChannel"
-                  - "ssmmessages:CreateDataChannel"
-                  - "ssmmessages:OpenControlChannel"
-                  - "ssmmessages:OpenDataChannel"
-                Resource: "*"
-              - Effect: Allow
-                Action:
-                  - "logs:DescribeLogGroups"
-                Resource: "*"
-              - Effect: "Allow"
-                Action:
-                  - "logs:CreateLogStream"
-                  - "logs:DescribeLogStreams"
-                  - "logs:PutLogEvents"
-                Resource: !GetAtt LogGroup.Arn
-              - Effect: Allow
-                Action:
-                  - "s3:PutObject"
-                Resource:
-                  - Fn::Join:
-                    - ""
-                    - - !GetAtt S3Bucket.Arn
-                      - /*
-              - Effect: Allow
-                Action:
-                  - "s3:GetEncryptionConfiguration"
-                Resource:
-                  - Fn::Join:
-                    - ""
-                    - - !GetAtt S3Bucket.Arn
-                      - /*
-              - Effect: Allow
-                Action:
-                  - "kms:Decrypt"
-                Resource: !GetAtt KMSKey.Arn
-
-  ECRRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: !Sub ${EnvironmentName}-${SystemName}-repository
-
 Outputs:
   VpcId:
     Value: !Ref VPC
@@ -303,32 +251,43 @@ Outputs:
     Export:
       Name: !Sub ${EnvironmentName}-${SystemName}-sg-api
 
+  TargetGroupArn:
+    Value:
+      Fn::Join:
+        - ""
+        - - "arn:aws:elasticloadbalancing:"
+          - !Sub "${AWS::Region}:"
+          - !Sub "${AWS::AccountId}:"
+          - !GetAtt TargetGroup01.TargetGroupFullName
+    Export:
+      Name: !Sub ${EnvironmentName}-${SystemName}-targetgroup01-arn
+
   LogGroupName:
     Value: !Sub /aws/ecs/${EnvironmentName}-${SystemName}
     Export:
-      Name: !Sub ${EnvironmentName}-${SystemName}-log-group
+      Name: !Sub ${EnvironmentName}-${SystemName}-log-group-name
+
+  LogGroupArn:
+    Value: !GetAtt LogGroup.Arn
+    Export:
+      Name: !Sub ${EnvironmentName}-${SystemName}-log-group-arn
 
   S3BucketName:
     Value: !Sub ${EnvironmentName}-${SystemName}-log
     Export:
-      Name: !Sub ${EnvironmentName}-${SystemName}-s3-bucket
+      Name: !Sub ${EnvironmentName}-${SystemName}-s3-bucket-name
+
+  S3BucketArn:
+    Value: !GetAtt S3Bucket.Arn
+    Export:
+      Name: !Sub ${EnvironmentName}-${SystemName}-s3-bucket-arn
 
   KMSKeyID:
     Value: !Ref KMSKey
     Export:
       Name: !Sub ${EnvironmentName}-${SystemName}-kms-key-id
 
-  ECSTaskExecutionRoleArn:
-    Value: !GetAtt ECSTaskExecutionRole.Arn
+  KMSKeyArn:
+    Value: !GetAtt KMSKey.Arn
     Export:
-      Name: !Sub ${EnvironmentName}-${SystemName}-ecs-task-execution-role-arn
-
-  ECSTaskRoleArn:
-    Value: !GetAtt ECSTaskRole.Arn
-    Export:
-      Name: !Sub ${EnvironmentName}-${SystemName}-ecs-task-role-arn
-
-  ECRRepositoryUri:
-    Value: !GetAtt ECRRepository.RepositoryUri
-    Export:
-      Name: !Sub ${EnvironmentName}-${SystemName}-repository-uri
+      Name: !Sub ${EnvironmentName}-${SystemName}-kms-key-arn
