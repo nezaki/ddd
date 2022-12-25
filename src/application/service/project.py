@@ -41,10 +41,9 @@ class ProjectServiceImpl(ProjectService):
     def __init__(
         self,
         session: Session = Depends(get_db),
-        project_repository: ProjectRepository = Depends(ProjectRepositoryImpl),
     ):
-        self.session: Session = session
-        self.project_repository = project_repository
+        self.session = session
+        self.project_repository: ProjectRepository = ProjectRepositoryImpl()
 
     def read_projects(
         self, skip: int | None = 0, limit: int | None = 100

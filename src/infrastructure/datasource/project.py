@@ -57,9 +57,6 @@ class ProjectRepository(ABC):
 
 
 class ProjectRepositoryImpl(ProjectRepository):
-    def __init__(self):
-        pass
-
     def find(
         self, session: Session, skip: int | None = 0, limit: int | None = 100
     ) -> List[ProjectModel]:
