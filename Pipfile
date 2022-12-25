@@ -28,7 +28,7 @@ black = "*"
 mypy = "*"
 
 [requires]
-python_version = "3.9"
+python_version = "3.11"
 
 [scripts]
 lint = "bash -c \"flake8 --config setup.cfg ; mypy src tests alembic/dev/versions\""
