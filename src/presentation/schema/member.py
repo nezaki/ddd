@@ -32,11 +32,7 @@ class Member(BaseModel):
 
     class Config:
         orm_mode = True
-        schema_extra = {
-            "required": {
-                "name", "cost", "cost_type"
-            }
-        }
+        schema_extra = {"required": {"name", "cost", "cost_type"}}
 
     @staticmethod
     def from_entity(member: MemberModel) -> "Member":

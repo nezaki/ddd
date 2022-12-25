@@ -16,9 +16,10 @@ class MemberService(ABC):
 
 class MemberServiceImpl(MemberService):
     def __init__(
-            self,
-            session: Session = Depends(get_db),
-            member_repository: MemberRepository = Depends(MemberRepositoryImpl)):
+        self,
+        session: Session = Depends(get_db),
+        member_repository: MemberRepository = Depends(MemberRepositoryImpl),
+    ):
         self.session: Session = session
         self.member_repository = member_repository
 

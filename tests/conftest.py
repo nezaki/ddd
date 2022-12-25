@@ -1,4 +1,4 @@
-from typing import Any, Generator
+from typing import Generator
 
 import pytest
 from alembic.config import Config
@@ -11,8 +11,9 @@ from src.infrastructure.datasource.database import get_db
 from src.main import app, verify_token
 
 
-async def override_verify_token() -> Any:
+async def override_verify_token() -> None:
     pass
+
 
 app.dependency_overrides[verify_token] = override_verify_token
 
@@ -56,8 +57,22 @@ session テスト全体で1回だけ実行
 def db(request):  # noqa
     alembic.command.downgrade(config, "base")
     alembic.command.upgrade(config, "head")
-    yield
-    alembic.command.downgrade(config, "base")
+
+    with TestingSessionLocal() as db:
+        schema = config.get_main_option("schema")
+        db.execute(f"SET search_path TO {schema}")
+        try:
+            yield db
+            db.commit()
+        except Exception as e:
+            if db:
+                db.rollback()
+            raise e
+        finally:
+            if db:
+                db.close()
+
+    # alembic.command.downgrade(config, "base")
 
 
 @pytest.fixture(scope="module")

@@ -45,7 +45,7 @@ class MemberRepositoryImpl(MemberRepository):
         pass
 
     def create(self, session: Session, member: MemberModel) -> MemberModel:
-        member: Member = Member.from_entity(member)
+        member = Member.from_entity(member)
         session.add(member)
         session.flush()
         return member.to_entity()

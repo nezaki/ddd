@@ -1,5 +1,3 @@
-from typing import Any
-
 from fastapi import APIRouter, Depends
 from src.application.service.member import MemberService, MemberServiceImpl
 from src.domain.model.member import Member as MemberModel
@@ -12,6 +10,8 @@ router = APIRouter(
 
 
 @router.post("", response_model=MemberSchema)
-def create(payload: MemberSchema, service: MemberService = Depends(MemberServiceImpl)) -> Any:
+def create(
+    payload: MemberSchema, service: MemberService = Depends(MemberServiceImpl)
+) -> MemberSchema:
     member = service.create(MemberModel(**payload.dict()))
     return MemberSchema.from_entity(member)

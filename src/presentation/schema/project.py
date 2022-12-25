@@ -2,6 +2,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
+from src.domain.model.project import Project as ProjectModel
+
 
 class Project(BaseModel):
     id: Optional[int] = Field(
@@ -28,10 +30,18 @@ class Project(BaseModel):
     class Config:
         orm_mode = True
 
+    @staticmethod
+    def from_entity(project: ProjectModel) -> "Project":
+        return Project(
+            id=project.id,
+            name=project.name,
+            description=project.description,
+        )
+
 
 class Projects(BaseModel):
     projects: List[Project]
 
 
 class ProjectPatch(Project):
-    name: Optional[str] = Project.__fields__.get("name").field_info
+    name: Optional[str] = Project.__fields__.get("name").field_info  # type: ignore

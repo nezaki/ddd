@@ -9,7 +9,7 @@ services:
   postgres:
     image: postgres:14.1
     platform: linux/amd64
-    container_name: postgres
+    container_name: fastapi-postgres
     restart: always
     tty: true
     environment:
@@ -24,18 +24,18 @@ services:
       - ~/docker/fastapi/postgres:/var/lib/postgresql/data
     user: root
 
-#  pgadmin4:
-#    image: dpage/pgadmin4:6.3
-#    platform: linux/amd64
-#    container_name: fastapi-pgadmin4
-#    depends_on:
-#      - postgres
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#      PGADMIN_DEFAULT_PASSWORD: admin
-#    hostname: pgadmin4
-#    restart: always
-#    ports:
-#      - 80:80
-#    volumes:
-#      - ~/docker/fastapi/pgadmin4:/var/lib/pgadmin
+  pgadmin4:
+    image: dpage/pgadmin4:6.3
+    platform: linux/amd64
+    container_name: fastapi-pgadmin4
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    hostname: pgadmin4
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ~/docker/fastapi/pgadmin4:/var/lib/pgadmin

@@ -15,4 +15,6 @@ class MemberAllocation(Base):
     quantity = Column(NUMERIC)
     status = Column(VARCHAR)
 
-    project = relationship("Project", uselist=False, lazy="joined", innerjoin=True, viewonly=True)
+    project = relationship(
+        "Project", uselist=False, lazy="joined", innerjoin=True, viewonly=True
+    )

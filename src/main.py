@@ -22,6 +22,7 @@ logging.getLogger("sqlalchemy.engine").setLevel(level=logging.DEBUG)
 async def verify_token(x_token: str = Header(...)):  # noqa
     pass
 
+
 space = "  "
 description = f"""
 api{space}
@@ -37,7 +38,8 @@ app = FastAPI(
     root_path="",
     dependencies=[Depends(verify_token)],
     docs_url="/docs",
-    redoc_url="/redoc",)
+    redoc_url="/redoc",
+)
 app.include_router(project_router)
 app.include_router(member_router)
 app.include_router(example_router)
@@ -93,5 +95,10 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level=logging.DEBUG, debug=False,
-                timeout_keep_alive=30)
+    uvicorn.run(
+        "main:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=True,
+        timeout_keep_alive=30,
+    )

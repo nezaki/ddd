@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, NoReturn, Optional
+from typing import Dict, List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -11,7 +11,9 @@ from src.infrastructure.datasource.project import ProjectRepository, ProjectRepo
 
 class ProjectService(ABC):
     @abstractmethod
-    def read_projects(self, skip: Optional[int], limit: Optional[int]) -> List[Project]:
+    def read_projects(
+        self, skip: int | None = 0, limit: int | None = 100
+    ) -> List[Project]:
         raise NotImplementedError
 
     @abstractmethod
@@ -31,19 +33,22 @@ class ProjectService(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def delete(self, project_id: int) -> NoReturn:
+    def delete(self, project_id: int) -> None:
         raise NotImplementedError
 
 
 class ProjectServiceImpl(ProjectService):
     def __init__(
-            self,
-            session: Session = Depends(get_db),
-            project_repository: ProjectRepository = Depends(ProjectRepositoryImpl)):
+        self,
+        session: Session = Depends(get_db),
+        project_repository: ProjectRepository = Depends(ProjectRepositoryImpl),
+    ):
         self.session: Session = session
         self.project_repository = project_repository
 
-    def read_projects(self, skip: Optional[int], limit: Optional[int]) -> List[Project]:
+    def read_projects(
+        self, skip: int | None = 0, limit: int | None = 100
+    ) -> List[Project]:
         return self.project_repository.find(self.session, skip, limit)
 
     def read(self, project_id: int) -> Optional[Project]:
@@ -57,7 +62,10 @@ class ProjectServiceImpl(ProjectService):
 
     def update(self, project: Dict, project_id: int) -> Project:
         stored_project = self.project_repository.find_by_id(self.session, project_id)
-        return self.project_repository.update(self.session, stored_project.copy(update=project), project_id)
+        assert stored_project is not None
+        return self.project_repository.update(
+            self.session, stored_project.copy(update=project), project_id
+        )
 
-    def delete(self, project_id: int) -> NoReturn:
+    def delete(self, project_id: int) -> None:
         self.project_repository.delete(self.session, project_id)
