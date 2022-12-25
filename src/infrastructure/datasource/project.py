@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List
 
 from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR
 from sqlalchemy.orm import Session
@@ -38,7 +38,7 @@ class ProjectRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def find_by_id(self, session: Session, project_id: int) -> Optional[ProjectModel]:
+    def find_by_id(self, session: Session, project_id: int) -> ProjectModel | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -65,7 +65,7 @@ class ProjectRepositoryImpl(ProjectRepository):
         )
         return [project.to_entity() for project in projects]
 
-    def find_by_id(self, session: Session, project_id: int) -> Optional[ProjectModel]:
+    def find_by_id(self, session: Session, project_id: int) -> ProjectModel | None:
         try:
             project: Project = session.query(Project).filter_by(id=project_id).one()
             return project.to_entity()

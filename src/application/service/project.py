@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from sqlalchemy.orm import Session
 
@@ -17,7 +17,7 @@ class ProjectService(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def read(self, project_id: int) -> Optional[Project]:
+    def read(self, project_id: int) -> Project | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -50,7 +50,7 @@ class ProjectServiceImpl(ProjectService):
     ) -> List[Project]:
         return self.project_repository.find(self.session, skip, limit)
 
-    def read(self, project_id: int) -> Optional[Project]:
+    def read(self, project_id: int) -> Project | None:
         return self.project_repository.find_by_id(self.session, project_id)
 
     def create(self, project: Project) -> Project:

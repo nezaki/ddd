@@ -4,7 +4,7 @@ from src.domain.model.project import Project
 from src.infrastructure.datasource.project import ProjectRepositoryImpl
 
 
-def test_project(db: Session) -> None:
+def test_project_repository(db: Session) -> None:
     test_value = {"name": "name test", "description": "test description"}
 
     project_repository = ProjectRepositoryImpl()
