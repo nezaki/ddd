@@ -48,6 +48,9 @@ async def session() -> AsyncGenerator:
     )
 
     async with AsyncSessionLocal.begin() as async_session:
+        await async_session.execute(
+            f"SET search_path TO {get_settings().DATABASE_SCHEMA}"
+        )
         yield async_session
         await async_session.commit()
         await async_session.close()

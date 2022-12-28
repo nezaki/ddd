@@ -13,7 +13,7 @@ SessionLocal = sessionmaker(
 
 Base = declarative_base()
 
-
+# TODO AsyncSession
 async def get_db():  # noqa
     db = SessionLocal()
     try:

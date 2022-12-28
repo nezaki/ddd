@@ -8,6 +8,7 @@ from pydantic import AnyHttpUrl, BaseSettings, validator
 
 class Settings(BaseSettings):
     DATABASE_URL: str
+    DATABASE_SCHEMA: str
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)

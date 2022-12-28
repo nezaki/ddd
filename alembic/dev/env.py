@@ -56,6 +56,10 @@ def do_run_migrations(connection: Connection) -> None:
     context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
+        schema = config.get_main_option("schema")
+        if schema is not None:
+            context.execute(f"CREATE SCHEMA IF NOT EXISTS {schema};")
+            context.execute(f"SET search_path TO {schema}")
         context.run_migrations()
 
 
