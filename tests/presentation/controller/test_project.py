@@ -1,8 +1,8 @@
 from typing import Dict, List
 
-from sqlalchemy.orm import Session
+import pytest
+from httpx import AsyncClient
 
-from fastapi.testclient import TestClient
 from src.application.service.project import ProjectService, ProjectServiceImpl
 from src.domain.model.project import Project as ProjectModel
 from tests.conftest import app
@@ -16,33 +16,35 @@ test_project02 = ProjectModel(
 
 
 class ProjectServiceMock(ProjectService):
-    def read_projects(
+    async def read_projects(
         self, skip: int | None = 0, limit: int | None = 100
     ) -> List[ProjectModel]:
         return [test_project01, test_project02]
 
-    def read(self, project_id: int) -> ProjectModel | None:
+    async def read(self, project_id: int) -> ProjectModel | None:
         return test_project01
 
-    def create(self, project: ProjectModel) -> ProjectModel:
+    async def create(self, project: ProjectModel) -> ProjectModel:
         return test_project01
 
-    def replace(self, project: ProjectModel, project_id: int) -> ProjectModel:
+    async def replace(self, project: ProjectModel, project_id: int) -> ProjectModel:
         return test_project01
 
-    def update(self, project: Dict, project_id: int) -> ProjectModel:
+    async def update(self, project: Dict, project_id: int) -> ProjectModel:
         return test_project01
 
-    def delete(self, project_id: int) -> None:
+    async def delete(self, project_id: int) -> None:
         pass
 
 
 app.dependency_overrides[ProjectServiceImpl] = ProjectServiceMock
 
 
-def test(db: Session, client: TestClient) -> None:
+@pytest.mark.asyncio
+async def test_project(client: AsyncClient) -> None:
+
     # get list
-    response = client.get("/projects")
+    response = await client.get("/projects")
     assert response.status_code == 200
     response_projects = response.json().get("projects")
     assert len(response_projects) == 2
@@ -54,7 +56,7 @@ def test(db: Session, client: TestClient) -> None:
     assert response_projects[1].get("description") == "desc presentation test02"
 
     # get
-    response = client.get("/projects/1")
+    response = await client.get("/projects/1")
     assert response.status_code == 200
     response_project = response.json()
     assert response_project.get("id") == 100
@@ -62,7 +64,7 @@ def test(db: Session, client: TestClient) -> None:
     assert response_project.get("description") == "desc presentation test"
 
     # post
-    response = client.post(
+    response = await client.post(
         "/projects",
         json={
             "name": "name",
@@ -76,7 +78,7 @@ def test(db: Session, client: TestClient) -> None:
     assert response_project_post.get("description") == "desc presentation test"
 
     # put
-    response = client.put(
+    response = await client.put(
         "/projects/2",
         json={
             "name": "name",
@@ -90,7 +92,7 @@ def test(db: Session, client: TestClient) -> None:
     assert response_project_put.get("description") == "desc presentation test"
 
     # patch
-    response = client.patch(
+    response = await client.patch(
         "/projects/3",
         json={
             "name": "name",
@@ -103,5 +105,5 @@ def test(db: Session, client: TestClient) -> None:
     assert response_project_patch.get("description") == "desc presentation test"
 
     # delete
-    response = client.delete("/projects/4")
+    response = await client.delete("/projects/4")
     assert response.status_code == 204

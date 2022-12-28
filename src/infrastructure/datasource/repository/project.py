@@ -1,52 +1,70 @@
 from typing import List
 
-from sqlalchemy.orm import Session
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.model.project import Project as ProjectModel
 from src.infrastructure.datasource.entity.project import Project as ProjectEntity
 
 
-def find(
-    session: Session, skip: int | None = 0, limit: int | None = 100
+async def find(
+    session: AsyncSession, skip: int | None = 0, limit: int | None = 100
 ) -> List[ProjectModel]:
-    projects = (
-        session.query(ProjectEntity)
-        .order_by(ProjectEntity.id)
-        .offset(skip)
-        .limit(limit)
-        .all()
+    statement = (
+        select(ProjectEntity).order_by(ProjectEntity.id).offset(skip).limit(limit)
     )
-    return [project.to_entity() for project in projects]
-
-
-def find_by_id(session: Session, project_id: int) -> ProjectModel | None:
-    try:
-        project: ProjectEntity = (
-            session.query(ProjectEntity).filter_by(id=project_id).one()
+    result = await session.execute(statement)
+    projects = result.fetchall()
+    return [
+        ProjectModel(
+            id=project[0].id,
+            name=project[0].name,
+            description=project[0].description,
         )
-        return project.to_entity()
-    except NoResultFound:
+        for project in projects
+    ]
+
+
+async def _find_by_id(session: AsyncSession, project_id: int) -> ProjectEntity | None:
+    statement = select(ProjectEntity).filter_by(id=project_id)
+    result = (await session.execute(statement)).fetchone()
+    if result is not None:
+        return result.Project  # type: ignore
+    else:
         return None
-    except Exception as e:
-        raise e
 
 
-def create(session: Session, project: ProjectModel) -> ProjectModel:
-    _project: ProjectEntity = ProjectEntity.from_entity(project)
+async def find_by_id(session: AsyncSession, project_id: int) -> ProjectModel | None:
+    project = await _find_by_id(session, project_id)
+    if project is not None:
+        return ProjectModel.from_orm(project)
+    else:
+        return None
+
+
+async def create(session: AsyncSession, project: ProjectModel) -> ProjectModel:
+    _project: ProjectEntity = ProjectEntity.from_model(project)
     session.add(_project)
-    session.flush()
-    return _project.to_entity()
-
-
-def update(session: Session, project: ProjectModel, project_id: int) -> ProjectModel:
-    _project: ProjectEntity = (
-        session.query(ProjectEntity).filter_by(id=project_id).one()
+    await session.flush()
+    return ProjectModel(
+        id=_project.id,
+        name=_project.name,
+        description=_project.description,
     )
-    _project.name = project.name
+
+
+async def update(
+    session: AsyncSession, project: ProjectModel, project_id: int
+) -> ProjectModel:
+    _project = await _find_by_id(session, project_id)
+    assert _project is not None
+    _project.name = "update test name"
     _project.description = project.description
-    return _project.to_entity()
+    await session.flush()
+    return ProjectModel.from_orm(_project)
 
 
-def delete(session: Session, project_id: int) -> None:
-    session.query(ProjectEntity).filter_by(id=project_id).delete()
+async def delete(session: AsyncSession, project_id: int) -> None:
+    _project = await _find_by_id(session, project_id)
+    await session.delete(_project)
+    await session.flush()

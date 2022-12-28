@@ -12,11 +12,11 @@ class Project(Base):
     name = Column(VARCHAR)
     description = Column(VARCHAR)
 
-    def to_entity(self) -> ProjectModel:
+    def to_model(self) -> ProjectModel:
         return ProjectModel(id=self.id, name=self.name, description=self.description)
 
     @staticmethod
-    def from_entity(project: ProjectModel) -> "Project":
+    def from_model(project: ProjectModel) -> "Project":
         return Project(
             id=project.id, name=project.name, description=project.description
         )

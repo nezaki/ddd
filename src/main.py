@@ -9,7 +9,7 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi import Depends, FastAPI, Header, Request
 from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
-from src.config import settings
+from src.config import get_settings
 from src.presentation.controller.example import router as example_router
 from src.presentation.controller.project import router as project_router
 
@@ -83,10 +83,10 @@ async def validation_exception_handler(request, exc):  # noqa
     return await request_validation_exception_handler(request, exc)
 
 
-if settings.BACKEND_CORS_ORIGINS:
+if get_settings().BACKEND_CORS_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_origins=[str(origin) for origin in get_settings().BACKEND_CORS_ORIGINS],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -99,4 +99,5 @@ if __name__ == "__main__":
         port=8000,
         reload=True,
         timeout_keep_alive=30,
+        log_level=logging.DEBUG,
     )

@@ -6,12 +6,11 @@ name = "pypi"
 [packages]
 fastapi = "*"
 uvicorn = "*"
-sqlalchemy = "*"
-psycopg2-binary = "*"
+sqlalchemy = {extras = ["asyncio"], version = "*"}
+asyncpg = "*"
 python-dotenv = "*"
 requests = "*"
 httpx = "*"
-typing-extensions = "*"
 
 [dev-packages]
 flake8 = "*"
@@ -24,9 +23,11 @@ pre-commit = "*"
 pytest = "*"
 pytest-env = "*"
 pytest-mock = "*"
+pytest-asyncio = "*"
 alembic = "*"
 black = "*"
 mypy = "*"
+typing-extensions = "*"
 
 [requires]
 python_version = "3.11"

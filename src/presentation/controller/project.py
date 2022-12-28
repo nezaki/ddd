@@ -13,55 +13,55 @@ router = APIRouter(
 
 
 @router.get("", response_model=ProjectsSchema)
-def get_projects(
+async def get_projects(
     params: CommonQueryParams = Depends(CommonQueryParams),
     service: ProjectService = Depends(ProjectServiceImpl),
 ) -> ProjectsSchema:
-    projects = service.read_projects(params.skip, params.limit)
+    projects = await service.read_projects(params.skip, params.limit)
     return ProjectsSchema(projects=projects)
 
 
 @router.get("/{project_id}", response_model=ProjectSchema)
-def get_project(
+async def get_project(
     project_id: int, service: ProjectService = Depends(ProjectServiceImpl)
 ) -> ProjectSchema | None:
-    project = service.read(project_id)
+    project = await service.read(project_id)
     if project is None:
         raise HTTPException(status_code=404)
     return ProjectSchema.from_entity(project)
 
 
 @router.post("", response_model=ProjectSchema)
-def post(
+async def post(
     payload: ProjectSchema, service: ProjectService = Depends(ProjectServiceImpl)
 ) -> ProjectSchema:
-    project = service.create(ProjectModel(**payload.dict()))
+    project = await service.create(ProjectModel(**payload.dict()))
     return ProjectSchema.from_entity(project)
 
 
 @router.put("/{project_id}", response_model=ProjectSchema)
-def put(
+async def put(
     project_id: int,
     payload: ProjectSchema,
     service: ProjectService = Depends(ProjectServiceImpl),
 ) -> ProjectSchema:
-    project = service.replace(ProjectModel(**payload.dict()), project_id)
+    project = await service.replace(ProjectModel(**payload.dict()), project_id)
     return ProjectSchema.from_entity(project)
 
 
 @router.patch("/{project_id}", response_model=ProjectPatchSchema)
-def patch(
+async def patch(
     project_id: int,
     payload: ProjectPatchSchema,
     service: ProjectService = Depends(ProjectServiceImpl),
 ) -> ProjectSchema:
-    project = service.update(payload.dict(exclude_unset=True), project_id)
+    project = await service.update(payload.dict(exclude_unset=True), project_id)
     return ProjectSchema.from_entity(project)
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete(
+async def delete(
     project_id: int, service: ProjectService = Depends(ProjectServiceImpl)
 ) -> Response:
-    service.delete(project_id)
+    await service.delete(project_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

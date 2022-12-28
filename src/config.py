@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import List, Union
 
 from pydantic import AnyHttpUrl, BaseSettings, validator
@@ -17,7 +18,9 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
 
 
-settings = Settings()
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()
