@@ -17,7 +17,7 @@ Base = declarative_base()
 async def get_db():  # noqa
     db = SessionLocal()
     try:
-        db.execute(f"SET search_path TO {get_settings().DATABASE_SCHEMA}")
+        # db.execute(f"SET search_path TO {get_settings().DATABASE_SCHEMA}")
         yield db
         db.commit()
     except Exception as e:

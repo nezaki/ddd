@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 import alembic
+from src.config import get_settings
 from src.infrastructure.datasource.database import get_db
 from src.main import app, verify_token
 
@@ -46,8 +47,8 @@ def db_setup() -> None:
 
 @pytest_asyncio.fixture(scope="function")
 async def session() -> AsyncGenerator:
-    url = "postgresql+asyncpg://root:root@localhost:5432/test"
-    async_engine = create_async_engine(url, echo=False)
+    # url = "postgresql+asyncpg://root:root@localhost:5432/test"
+    async_engine = create_async_engine(get_settings().DATABASE_URL, echo=False)
 
     AsyncSessionLocal = sessionmaker(
         autocommit=False,
