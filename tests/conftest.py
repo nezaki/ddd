@@ -1,13 +1,10 @@
 from typing import AsyncGenerator
 
-import pytest
 import pytest_asyncio
-from alembic.config import Config
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-import alembic
 from src.config import get_settings
 from src.infrastructure.datasource.database import get_db
 from src.main import app, verify_token
@@ -38,16 +35,8 @@ app.dependency_overrides[verify_token] = override_verify_token
 app.dependency_overrides[get_db] = lambda: None
 
 
-@pytest.fixture(scope="session", autouse=True)
-def db_setup() -> None:
-    config = Config("./tests/alembic-test.ini")
-    alembic.command.downgrade(config, "base")
-    alembic.command.upgrade(config, "head")
-
-
 @pytest_asyncio.fixture(scope="function")
 async def session() -> AsyncGenerator:
-    # url = "postgresql+asyncpg://root:root@localhost:5432/test"
     async_engine = create_async_engine(get_settings().DATABASE_URL, echo=False)
 
     AsyncSessionLocal = sessionmaker(
