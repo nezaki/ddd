@@ -11,7 +11,6 @@ from fastapi.exception_handlers import http_exception_handler, request_validatio
 from fastapi.exceptions import RequestValidationError
 from src.config import settings
 from src.presentation.controller.example import router as example_router
-from src.presentation.controller.member import router as member_router
 from src.presentation.controller.project import router as project_router
 
 logging.basicConfig(level=logging.DEBUG)
@@ -41,7 +40,6 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 app.include_router(project_router)
-app.include_router(member_router)
 app.include_router(example_router)
 
 

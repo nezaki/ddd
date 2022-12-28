@@ -1,35 +1,32 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
-from sqlalchemy.orm import Session
-
-from fastapi import Depends
-from src.domain.model.project import Project
+from src.domain.model.project import Project as ProjectModel
 from src.infrastructure.datasource.database import get_db
-from src.infrastructure.datasource.project import ProjectRepository, ProjectRepositoryImpl
+from src.infrastructure.datasource.repository import project as project_repository
 
 
 class ProjectService(ABC):
     @abstractmethod
     def read_projects(
         self, skip: int | None = 0, limit: int | None = 100
-    ) -> List[Project]:
+    ) -> List[ProjectModel]:
         raise NotImplementedError
 
     @abstractmethod
-    def read(self, project_id: int) -> Project | None:
+    def read(self, project_id: int) -> ProjectModel | None:
         raise NotImplementedError
 
     @abstractmethod
-    def create(self, project: Project) -> Project:
+    def create(self, project: ProjectModel) -> ProjectModel:
         raise NotImplementedError
 
     @abstractmethod
-    def replace(self, project: Project, project_id: int) -> Project:
+    def replace(self, project: ProjectModel, project_id: int) -> ProjectModel:
         raise NotImplementedError
 
     @abstractmethod
-    def update(self, project: Dict, project_id: int) -> Project:
+    def update(self, project: Dict, project_id: int) -> ProjectModel:
         raise NotImplementedError
 
     @abstractmethod
@@ -38,33 +35,29 @@ class ProjectService(ABC):
 
 
 class ProjectServiceImpl(ProjectService):
-    def __init__(
-        self,
-        session: Session = Depends(get_db),
-    ):
-        self.session = session
-        self.project_repository: ProjectRepository = ProjectRepositoryImpl()
+    def __init__(self):
+        self.session = get_db()
 
     def read_projects(
         self, skip: int | None = 0, limit: int | None = 100
-    ) -> List[Project]:
-        return self.project_repository.find(self.session, skip, limit)
+    ) -> List[ProjectModel]:
+        return project_repository.find(self.session, skip, limit)
 
-    def read(self, project_id: int) -> Project | None:
-        return self.project_repository.find_by_id(self.session, project_id)
+    def read(self, project_id: int) -> ProjectModel | None:
+        return project_repository.find_by_id(self.session, project_id)
 
-    def create(self, project: Project) -> Project:
-        return self.project_repository.create(self.session, project)
+    def create(self, project: ProjectModel) -> ProjectModel:
+        return project_repository.create(self.session, project)
 
-    def replace(self, project: Project, project_id: int) -> Project:
-        return self.project_repository.update(self.session, project, project_id)
+    def replace(self, project: ProjectModel, project_id: int) -> ProjectModel:
+        return project_repository.update(self.session, project, project_id)
 
-    def update(self, project: Dict, project_id: int) -> Project:
-        stored_project = self.project_repository.find_by_id(self.session, project_id)
+    def update(self, project: Dict, project_id: int) -> ProjectModel:
+        stored_project = project_repository.find_by_id(self.session, project_id)
         assert stored_project is not None
-        return self.project_repository.update(
+        return project_repository.update(
             self.session, stored_project.copy(update=project), project_id
         )
 
     def delete(self, project_id: int) -> None:
-        self.project_repository.delete(self.session, project_id)
+        project_repository.delete(self.session, project_id)

@@ -1,13 +1,11 @@
 from sqlalchemy.orm import Session
 
 from src.domain.model.project import Project
-from src.infrastructure.datasource.project import ProjectRepositoryImpl
+from src.infrastructure.datasource.repository import project as project_repository
 
 
 def test_project_repository(db: Session) -> None:
     test_value = {"name": "name test", "description": "test description"}
-
-    project_repository = ProjectRepositoryImpl()
 
     created_project = project_repository.create(
         db, Project(name=test_value["name"], description=test_value["description"])
