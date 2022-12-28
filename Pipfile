@@ -35,4 +35,4 @@ python_version = "3.11"
 [scripts]
 lint = "bash -c \"flake8 --config setup.cfg ; mypy src tests alembic/dev/versions\""
 code-format = "bash -c \"black src tests alembic/dev/versions ; isort . --sp setup.cfg\""
-test = "bash -c \"alembic -c tests/alembic-test.ini downgrade base ; alembic -c tests/alembic-test.ini upgrade head ; pytest -s\""
+test = "bash -c \"alembic -c tests/alembic-test.ini downgrade base ; alembic -c tests/alembic-test.ini upgrade head ; pytest\""
