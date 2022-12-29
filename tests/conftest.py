@@ -6,33 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.config import get_settings
-from src.infrastructure.datasource.database import get_db
+from src.infrastructure.datasource.database import get_db_async
 from src.main import app, verify_token
 
-
-async def override_verify_token() -> None:
-    pass
-
-
-app.dependency_overrides[verify_token] = override_verify_token
-
-
-# async def override_get_db():  # noqa
-#     db = async_session()
-#     try:
-#         schema = config.get_main_option("schema")
-#         db.execute(f"SET search_path TO {schema}")
-#         yield db
-#         db.commit()
-#     except Exception as e:
-#         if db:
-#             db.rollback()
-#         raise e
-#     finally:
-#         if db:
-#             db.close()
-
-app.dependency_overrides[get_db] = lambda: None
+app.dependency_overrides[verify_token] = lambda: None
+app.dependency_overrides[get_db_async] = lambda: None
 
 
 @pytest_asyncio.fixture(scope="function")

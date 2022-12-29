@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from fastapi import Depends
 from src.domain.model.project import Project as ProjectModel
-from src.infrastructure.datasource.database import get_db
+from src.infrastructure.datasource.database import get_db_async
 from src.infrastructure.datasource.repository import project as project_repository
 
 
@@ -35,8 +38,8 @@ class ProjectService(ABC):
 
 
 class ProjectServiceImpl(ProjectService):
-    def __init__(self):
-        self.session = get_db()
+    def __init__(self, session: AsyncSession = Depends(get_db_async)):
+        self.session = session
 
     async def read_projects(
         self, skip: int | None = 0, limit: int | None = 100
