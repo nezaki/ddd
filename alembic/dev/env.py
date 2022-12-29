@@ -29,6 +29,7 @@ def do_run_migrations(connection):
 
 async def run_async_migrations(connectable):
     async with connectable.connect() as connection:
+        await connection.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema}"))
         await connection.execute(text(f"SET search_path TO {schema}"))
         await connection.run_sync(do_run_migrations)
         await connection.commit()

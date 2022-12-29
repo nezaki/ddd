@@ -36,8 +36,11 @@ def __execute_upgrade(connection: AsyncSession) -> None:
 
 
 async def migrate_db(conn_url: str) -> None:
-    async_engine = create_async_engine(conn_url, echo=True)
+    async_engine = create_async_engine(conn_url, echo=False)
     async with async_engine.begin() as conn:
+        await conn.execute(
+            text(f"CREATE SCHEMA IF NOT EXISTS {get_settings().DATABASE_SCHEMA}")
+        )
         await conn.execute(text(f"SET search_path TO {get_settings().DATABASE_SCHEMA}"))
         await conn.run_sync(__execute_downgrade)
         await conn.run_sync(__execute_upgrade)
