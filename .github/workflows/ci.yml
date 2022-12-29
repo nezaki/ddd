@@ -34,7 +34,7 @@ jobs:
           pip install pipenv --upgrade-strategy=only-if-needed
 
       - name: Install dependencies
-        # if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           pipenv sync --dev
 
