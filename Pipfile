@@ -33,7 +33,7 @@ typing-extensions = "*"
 python_version = "3.11"
 
 [scripts]
-lint = "bash -c \"flake8 src tests --config setup.cfg ; mypy src tests alembic/dev/versions\""
+lint = "bash -c \"flake8 src tests --config setup.cfg && mypy src tests alembic/dev/versions\""
 code-format = "bash -c \"black src tests alembic/dev/versions ; isort . --sp setup.cfg\""
 test = "pytest -s"
 db-upgrade = "bash -c \"cd alembic ; alembic -c alembic.ini upgrade head\""
