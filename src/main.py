@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import Callable
 
 import uvicorn
-from starlette import status
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import Response
