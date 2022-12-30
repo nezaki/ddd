@@ -1,7 +1,7 @@
 import logging
 import time
 from datetime import datetime
-from typing import Callable, Dict
+from typing import Callable
 
 import uvicorn
 from starlette.exceptions import HTTPException as StarletteHTTPException
