@@ -22,11 +22,6 @@ jobs:
         with:
           path: ~/.local/share/virtualenvs
           key: ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-pipenv-${{ hashFiles('Pipfile.lock') }}
-      
-      - name: Docker Compose Run
-        run: |
-          docker-compose up -d
-          sleep 10
 
       - name: Install pipenv
         run: |
@@ -41,6 +36,11 @@ jobs:
       - name: Run Lint
         run: |
           pipenv run lint
+
+      - name: Docker Compose Run
+        run: |
+          docker-compose up -d
+          sleep 10
           
       - name: Run Test
         run: |
