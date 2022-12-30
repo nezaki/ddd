@@ -1,3 +1,4 @@
+import functools
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -30,3 +31,20 @@ async def get_db_async() -> AsyncGenerator:
             await async_session.rollback()
         finally:
             await async_session.close()
+
+
+def db_connection():  # noqa
+    def wrapper(func):  # noqa
+        @functools.wraps(func)  # noqa
+        async def wrapped(*args):  # noqa
+            async_generator = get_db_async()
+            while True:
+                try:
+                    async_session = await async_generator.__anext__()
+                    await func(*args, async_session=async_session)
+                except StopAsyncIteration:
+                    break
+
+        return wrapped
+
+    return wrapper

@@ -1,10 +1,13 @@
 import logging
 import time
 from datetime import datetime
+from typing import Callable
 
 import uvicorn
+from starlette import status
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import Response
 
 from fastapi import Depends, FastAPI, Header, Request
 from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
@@ -18,7 +21,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger("sqlalchemy.engine").setLevel(level=logging.DEBUG)
 
 
-async def verify_token(x_token: str = Header(...)):  # noqa
+async def verify_token(x_token: str = Header(...)) -> None:
     pass
 
 
@@ -44,17 +47,17 @@ app.include_router(example_router)
 
 
 @app.on_event("startup")
-async def startup():  # noqa
+async def startup() -> None:
     logger.debug("startup")
 
 
 @app.on_event("shutdown")
-async def shutdown():  # noqa
+async def shutdown() -> None:
     logger.debug("shutdown")
 
 
 @app.middleware("http")
-async def process_time(request: Request, call_next):  # noqa
+async def process_time(request: Request, call_next: Callable):  # noqa
     path = request.url.path
     method = request.method
     start = time.perf_counter()
@@ -72,13 +75,17 @@ async def process_time(request: Request, call_next):  # noqa
 
 
 @app.exception_handler(StarletteHTTPException)
-async def custom_http_exception_handler(request, exc):  # noqa
+async def custom_http_exception_handler(
+    request: Request, exc: StarletteHTTPException
+) -> Response:
     logger.debug("StarletteHTTPException")
     return await http_exception_handler(request, exc)
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):  # noqa
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> Response:
     logger.debug("RequestValidationError")
     return await request_validation_exception_handler(request, exc)
 

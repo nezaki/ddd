@@ -9,10 +9,27 @@ from src.presentation.schema.project import Projects as ProjectsSchema
 router = APIRouter(
     prefix="/projects",
     tags=["Projects"],
+    dependencies=None,
+    on_startup=None,
+    on_shutdown=None,
+    deprecated=False,
 )
 
 
-@router.get("", response_model=ProjectsSchema)
+@router.get(
+    path="",
+    name="get_projects name",
+    summary="get_projects summary",
+    description="get_projects description",
+    response_description="get_projects response_description",
+    status_code=status.HTTP_200_OK,
+    response_model=ProjectsSchema,
+    response_model_exclude=None,
+    response_model_exclude_none=False,
+    dependencies=None,
+    include_in_schema=True,
+    deprecated=False,
+)
 async def get_projects(
     params: CommonQueryParams = Depends(CommonQueryParams),
     service: ProjectService = Depends(ProjectServiceImpl),

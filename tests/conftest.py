@@ -10,12 +10,7 @@ from sqlalchemy.orm import sessionmaker
 
 from alembic import command
 from src.config import get_settings
-from src.infrastructure.datasource.database import get_db_async
 from src.main import app, verify_token
-
-app.dependency_overrides[verify_token] = lambda: None
-app.dependency_overrides[get_db_async] = lambda: None
-
 
 _path = os.path.dirname(__file__)
 __config_path__ = _path + "/alembic-test.ini"
@@ -51,7 +46,6 @@ async def session() -> AsyncGenerator:
     await migrate_db(get_settings().DATABASE_URL)
 
     async_engine = create_async_engine(get_settings().DATABASE_URL, echo=False)
-
     AsyncSessionLocal = sessionmaker(
         autocommit=False,
         autoflush=False,
@@ -69,7 +63,14 @@ async def session() -> AsyncGenerator:
         await async_session.close()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="function")
 async def client() -> AsyncGenerator:
     async with AsyncClient(app=app, base_url="https://test") as async_client:
         yield async_client
+
+
+@pytest_asyncio.fixture(scope="function", autouse=True)
+async def override_dependency() -> None:
+    app.dependency_overrides = {}
+    app.dependency_overrides[verify_token] = lambda: None
+    # app.dependency_overrides[get_db_async] = lambda: None

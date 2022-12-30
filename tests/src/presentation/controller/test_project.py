@@ -37,15 +37,13 @@ class ProjectServiceMock(ProjectService):
         pass
 
 
-app.dependency_overrides[ProjectServiceImpl] = ProjectServiceMock
-
-
 @pytest.mark.asyncio
 async def test_project(client: AsyncClient) -> None:
+    app.dependency_overrides[ProjectServiceImpl] = ProjectServiceMock
 
     # get list
     response = await client.get("/projects")
-    assert response.status_code == 200
+    assert response.status_code == 200, response.json()
     response_projects = response.json().get("projects")
     assert len(response_projects) == 2
     assert response_projects[0].get("id") == 100
@@ -94,9 +92,7 @@ async def test_project(client: AsyncClient) -> None:
     # patch
     response = await client.patch(
         "/projects/3",
-        json={
-            "name": "name",
-        },
+        json={"name": "name"},
     )
     assert response.status_code == 200
     response_project_patch = response.json()
