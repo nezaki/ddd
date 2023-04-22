@@ -15,9 +15,9 @@ from src.config import get_settings
 from src.presentation.controller.example import router as example_router
 from src.presentation.controller.project import router as project_router
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
-logging.getLogger("sqlalchemy.engine").setLevel(level=logging.DEBUG)
+logging.getLogger("sqlalchemy.engine").setLevel(level=logging.WARNING)
 
 
 async def verify_token(x_token: str = Header(...)) -> None:

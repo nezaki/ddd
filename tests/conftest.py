@@ -45,14 +45,13 @@ async def session() -> AsyncGenerator:
     await migrate_db(get_settings().DATABASE_URL)
 
     async_engine = create_async_engine(get_settings().DATABASE_URL, echo=False)
-    # AsyncSessionLocal = sessionmaker(
-    #     autocommit=False,
-    #     autoflush=False,
-    #     bind=async_engine,
-    #     class_=AsyncSession,
-    #     future=True,
-    # )
-    AsyncSessionLocal = async_sessionmaker(async_engine)
+    AsyncSessionLocal = async_sessionmaker(
+        bind=async_engine,
+        class_=AsyncSession,
+        autocommit=False,
+        autoflush=False,
+        future=True
+    )
 
     async with AsyncSessionLocal.begin() as async_session:
         await async_session.execute(text(f"SET search_path TO {get_settings().DATABASE_SCHEMA}"))

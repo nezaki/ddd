@@ -6,7 +6,7 @@ from fastapi import APIRouter, BackgroundTasks, Header, Request, Response
 from fastapi.responses import JSONResponse
 from src.presentation.schema.example import Example1, Example2
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 router = APIRouter(
