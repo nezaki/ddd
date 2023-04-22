@@ -48,7 +48,7 @@ async def create(session: AsyncSession, project: ProjectModel) -> ProjectModel:
     await session.flush()
     return ProjectModel(
         id=_project.id,
-        name=_project.name,
+        name=_project.name,  # type: ignore
         description=_project.description,
     )
 
