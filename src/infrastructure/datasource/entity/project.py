@@ -13,7 +13,7 @@ class Project(Base):
     description = Column(VARCHAR)
 
     def to_model(self) -> ProjectModel:
-        return ProjectModel(id=self.id, name=self.name, description=self.description)
+        return ProjectModel(id=self.id, name=self.name, description=self.description)  # type: ignore
 
     @staticmethod
     def from_model(project: ProjectModel) -> "Project":
