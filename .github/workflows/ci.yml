@@ -8,13 +8,32 @@ on:
       - reopened
       - ready_for_review
       - synchronize
-      
+
+env:
+  DOCKER_IMAGE_CACHE_PATH: docker-image
+  POSTGRES_VERSION: 14.1
+
 jobs:
   ci:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Cache Docker image
+        id: cache-docker-image
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.DOCKER_IMAGE_CACHE_PATH }}
+          key: ${{ runner.os }}-${{ env.POSTGRES_VERSION }}
+
+      - name: Pull and save a Docker image
+        if: steps.cache-docker-image.outputs.cache-hit != 'true'
+        run: |
+          docker pull postgres:${POSTGRES_VERSION}
+          docker save postgres:${POSTGRES_VERSION} -o ${DOCKER_IMAGE_CACHE_PATH}
+
+      - run: docker load -i ${DOCKER_IMAGE_CACHE_PATH}
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
