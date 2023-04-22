@@ -1,11 +1,14 @@
 name: ci
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
-
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+      
 jobs:
   ci:
     runs-on: ubuntu-latest
