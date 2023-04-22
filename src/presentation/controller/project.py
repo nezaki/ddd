@@ -35,7 +35,7 @@ async def get_projects(
     service: ProjectService = Depends(ProjectServiceImpl),
 ) -> ProjectsSchema:
     projects = await service.read_projects(params.skip, params.limit)
-    return ProjectsSchema(projects=projects)
+    return ProjectsSchema(projects=projects)  # type: ignore
 
 
 @router.get("/{project_id}", response_model=ProjectSchema)
