@@ -6,3 +6,5 @@ updates:
       interval: "weekly"
       timezone: "Asia/Tokyo"
     open-pull-requests-limit: 10
+    assignees:
+      - "nezaki"
