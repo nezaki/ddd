@@ -8,7 +8,7 @@ version: '3'
 services:
   postgres:
     image: postgres:15.2
-    platform: linux/arm64/v8
+    platform: linux/amd64
     container_name: fastapi-postgres
     restart: always
     tty: true
@@ -26,7 +26,7 @@ services:
 
   pgadmin4:
     image: dpage/pgadmin4:7.0
-    platform: linux/arm64
+    platform: linux/amd64
     container_name: fastapi-pgadmin4
     depends_on:
       - postgres
