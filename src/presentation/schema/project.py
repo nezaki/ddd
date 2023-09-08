@@ -1,12 +1,13 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.domain.model.project import Project as ProjectModel
 
 
 class Project(BaseModel):
-    id: Optional[int] = Field(
+    id: int | None = Field(
+        default=None,
         title="id",
         readOnly=True,
     )
@@ -18,7 +19,8 @@ class Project(BaseModel):
         example="name example",
         nullable=False,
     )
-    description: Optional[str] = Field(
+    description: str | None = Field(
+        default=None,
         title="説明",
         description="説明",
         min_length=1,
@@ -26,9 +28,7 @@ class Project(BaseModel):
         example="description example",
         nullable=True,
     )
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
     @staticmethod
     def from_entity(project: ProjectModel) -> "Project":
@@ -44,4 +44,4 @@ class Projects(BaseModel):
 
 
 class ProjectPatch(Project):
-    name: Optional[str] = Project.__fields__.get("name").field_info  # type: ignore
+    name: Optional[str] = Project.model_fields.get("name")  # type: ignore
