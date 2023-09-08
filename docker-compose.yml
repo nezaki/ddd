@@ -1,13 +1,13 @@
 # docker-compose.ymlの内容を更新した場合
 # docker compose down
 # docker compose build --no-cache
-# docker compose --project-name fastapi-db up -d --build --force-recreate
+# docker compose up -d --wait --force-recreate
 
 version: '3'
 
 services:
   postgres:
-    image: postgres:15.2
+    image: postgres:15.4
     # platform: linux/amd64
     container_name: fastapi-postgres
     restart: always
@@ -24,18 +24,18 @@ services:
       - ~/docker/fastapi/postgres:/var/lib/postgresql/data
     user: root
 
-  pgadmin4:
-    image: dpage/pgadmin4:7.0
-    # platform: linux/amd64
-    container_name: fastapi-pgadmin4
-    depends_on:
-      - postgres
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    hostname: pgadmin4
-    restart: always
-    ports:
-      - 80:80
-    volumes:
-      - ~/docker/fastapi/pgadmin4:/var/lib/pgadmin
+#  pgadmin4:
+#    image: dpage/pgadmin4:7.0
+#    # platform: linux/amd64
+#    container_name: fastapi-pgadmin4
+#    depends_on:
+#      - postgres
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+#      PGADMIN_DEFAULT_PASSWORD: admin
+#    hostname: pgadmin4
+#    restart: always
+#    ports:
+#      - 80:80
+#    volumes:
+#      - ~/docker/fastapi/pgadmin4:/var/lib/pgadmin
