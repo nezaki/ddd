@@ -8,18 +8,21 @@ from src.domain.model.project import Project as ProjectModel
 class Project(BaseModel):
     id: int | None = Field(
         default=None,
-        title="id",
+        title="id-title",
+        json_schema_extra={
+            "readOnly": True,
+        }
     )
     name: str = Field(
-        title="名前",
-        description="名前",
+        title="name-title",
+        description="name-description",
         min_length=1,
         max_length=32,
     )
     description: str | None = Field(
         default=None,
-        title="説明",
-        description="説明",
+        title="description-title",
+        description="description-description",
         min_length=1,
         max_length=256,
     )
