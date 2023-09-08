@@ -52,7 +52,7 @@ async def get_project(
 async def post(
     payload: ProjectSchema, service: ProjectService = Depends(ProjectServiceImpl)
 ) -> ProjectSchema:
-    project = await service.create(ProjectModel(**payload.dict()))
+    project = await service.create(ProjectModel(**payload.model_dump()))
     return ProjectSchema.from_entity(project)
 
 
@@ -62,7 +62,7 @@ async def put(
     payload: ProjectSchema,
     service: ProjectService = Depends(ProjectServiceImpl),
 ) -> ProjectSchema:
-    project = await service.replace(ProjectModel(**payload.dict()), project_id)
+    project = await service.replace(ProjectModel(**payload.model_dump()), project_id)
     return ProjectSchema.from_entity(project)
 
 
@@ -72,7 +72,7 @@ async def patch(
     payload: ProjectPatchSchema,
     service: ProjectService = Depends(ProjectServiceImpl),
 ) -> ProjectSchema:
-    project = await service.update(payload.dict(exclude_unset=True), project_id)
+    project = await service.update(payload.model_dump(exclude_unset=True), project_id)
     return ProjectSchema.from_entity(project)
 
 

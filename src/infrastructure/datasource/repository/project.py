@@ -37,7 +37,7 @@ async def _find_by_id(session: AsyncSession, project_id: int) -> ProjectEntity |
 async def find_by_id(session: AsyncSession, project_id: int) -> ProjectModel | None:
     project = await _find_by_id(session, project_id)
     if project is not None:
-        return ProjectModel.from_orm(project)
+        return ProjectModel.model_validate(project)
     else:
         return None
 
@@ -61,7 +61,7 @@ async def update(
     _project.name = "update test name"
     _project.description = project.description
     await session.flush()
-    return ProjectModel.from_orm(_project)
+    return ProjectModel.model_validate(_project)
 
 
 async def delete(session: AsyncSession, project_id: int) -> None:

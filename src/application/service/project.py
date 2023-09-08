@@ -59,7 +59,7 @@ class ProjectServiceImpl(ProjectService):
         stored_project = await project_repository.find_by_id(self.session, project_id)
         assert stored_project is not None
         return await project_repository.update(
-            self.session, stored_project.copy(update=project), project_id
+            self.session, stored_project.model_copy(update=project), project_id
         )
 
     async def delete(self, project_id: int) -> None:

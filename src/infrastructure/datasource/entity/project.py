@@ -26,5 +26,5 @@ class Project(Base):
         return Project(
             id=project.id,  # type: ignore
             name=project.name,
-            description=project.description
+            description=project.description,
         )

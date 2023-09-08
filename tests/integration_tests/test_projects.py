@@ -30,7 +30,6 @@ async def _insert_project(
 
 @pytest.mark.asyncio
 async def test_project(client: AsyncClient, session: AsyncSession) -> None:
-
     for project in [
         {"name": "name01", "description": "description01"},
         {"name": "name02", "description": "description02"},

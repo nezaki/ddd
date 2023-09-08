@@ -9,15 +9,12 @@ class Project(BaseModel):
     id: int | None = Field(
         default=None,
         title="id",
-        readOnly=True,
     )
     name: str = Field(
         title="名前",
         description="名前",
         min_length=1,
         max_length=32,
-        example="name example",
-        nullable=False,
     )
     description: str | None = Field(
         default=None,
@@ -25,8 +22,6 @@ class Project(BaseModel):
         description="説明",
         min_length=1,
         max_length=256,
-        example="description example",
-        nullable=True,
     )
     model_config = ConfigDict(from_attributes=True)
 

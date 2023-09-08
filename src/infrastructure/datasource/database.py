@@ -15,14 +15,16 @@ AsyncSessionLocal = async_sessionmaker(
     class_=AsyncSession,
     autocommit=False,
     autoflush=False,
-    future=True
+    future=True,
 )
 
 
 async def get_db_async() -> AsyncGenerator:
     async with AsyncSessionLocal.begin() as async_session:
         try:
-            await async_session.execute(text(f"SET search_path TO {get_settings().DATABASE_SCHEMA}"))
+            await async_session.execute(
+                text(f"SET search_path TO {get_settings().DATABASE_SCHEMA}")
+            )
             yield async_session
             await async_session.commit()
         except Exception:
